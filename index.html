@@ -1,102 +1,38 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UniversMarket</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
-<body class="bg-gray-100">
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    <!-- Header / Navigation -->
-    <header class="bg-blue-600 text-white p-4 flex justify-between items-center shadow-md">
-        <h1 class="font-bold text-xl">UniversMarket</h1>
-        <div id="authArea"></div>
-    </header>
+    const firebaseConfig = {
+        apiKey: "AIzaSyDUSW3HT16j3ESHu3k4RQjR42sVRflv5g8",
+        authDomain: "universmarket-5834b.firebaseapp.com",
+        projectId: "universmarket-5834b",
+        storageBucket: "universmarket-5834b.appspot.com",
+        messagingSenderId: "921170766621",
+        appId: "1:921170766621:web:a4fdd73b9492d47a748c96"
+    };
 
-    <!-- Conteneur principal -->
-    <main class="p-4 max-w-5xl mx-auto">
-        <div id="adsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Les annonces apparaîtront ici dynamiquement -->
-        </div>
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Fonction pour afficher les annonces dans votre design
+    window.renderAds = function(ads) {
+        const container = document.getElementById('adsContainer');
+        if (!container) return;
         
-        <!-- Message si vide -->
-        <div id="emptyAdsMessage" class="hidden text-center text-gray-500 mt-20">
-            <i class="fa-solid fa-box-open text-4xl mb-4"></i>
-            <p>Aucune annonce pour le moment.</p>
-        </div>
-    </main>
+        container.innerHTML = ads.map(ad => `
+            <div class="bg-white rounded-2xl shadow-sm border p-4">
+                <img src="${ad.image}" class="w-full h-32 object-cover rounded-lg">
+                <h4 class="font-bold mt-2">${ad.title}</h4>
+                <p class="text-blue-600 font-bold">$${ad.priceUSD}</p>
+            </div>
+        `).join('');
+    };
 
-    <!-- Modal de paiement (caché par défaut) -->
-    <div id="paymentModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-        <div class="bg-white p-6 rounded-2xl w-full max-w-sm">
-            <h3 id="payModalTitle" class="font-bold text-lg mb-2"></h3>
-            <p id="payModalPrice" class="text-blue-600 font-bold mb-4"></p>
-            <div id="paypal-button-container" class="mb-4"></div>
-            <a id="payWhatsappBtn" href="#" target="_blank" class="block text-center bg-green-500 text-white py-2 rounded-xl mb-2">Contacter sur WhatsApp</a>
-            <button onclick="closePaymentModal()" class="w-full text-gray-400">Annuler</button>
-        </div>
-    </div>
-
-    <!-- Script Firebase & Logique -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDUSW3HT16j3ESHu3k4RQjR42sVRflv5g8",
-            authDomain: "universmarket-5834b.firebaseapp.com",
-            projectId: "universmarket-5834b",
-            storageBucket: "universmarket-5834b.appspot.com",
-            messagingSenderId: "921170766621",
-            appId: "1:921170766621:web:a4fdd73b9492d47a748c96"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        // Fonctions globales pour le HTML
-        window.closePaymentModal = () => document.getElementById('paymentModal').classList.add('hidden');
-        
-        window.openPaymentModal = (title, priceUSD, phone) => {
-            document.getElementById('payModalTitle').innerText = title;
-            document.getElementById('payModalPrice').innerText = `Prix : $${priceUSD}`;
-            document.getElementById('payWhatsappBtn').href = `https://wa.me/${phone}?text=Bonjour, je suis intéressé par ${title}`;
-            document.getElementById('paymentModal').classList.remove('hidden');
-        };
-
-        // Rendu
-        const renderAds = (ads) => {
-            const container = document.getElementById('adsContainer');
-            const emptyMsg = document.getElementById('emptyAdsMessage');
-            
-            if (ads.length === 0) {
-                emptyMsg.classList.remove('hidden');
-                container.innerHTML = '';
-            } else {
-                emptyMsg.classList.add('hidden');
-                container.innerHTML = ads.map(ad => `
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition">
-                        <img src="${ad.image || 'https://via.placeholder.com/300'}" class="w-full h-48 object-cover">
-                        <div class="p-4">
-                            <h4 class="font-bold text-gray-800">${ad.title}</h4>
-                            <p class="text-blue-600 font-bold text-lg mb-3">$${ad.priceUSD || 0}</p>
-                            <button onclick="openPaymentModal('${ad.title.replace(/'/g, "\\'")}', ${ad.priceUSD || 0}, '${ad.phone}')" 
-                                    class="w-full bg-blue-600 text-white py-2 rounded-xl">Acheter</button>
-                        </div>
-                    </div>
-                `).join('');
-            }
-        };
-
-        // Chargement temps réel
-        const q = query(collection(db, 'annonces'), orderBy('createdAt', 'desc'));
-        onSnapshot(q, (snapshot) => {
-            let ads = [];
-            snapshot.forEach((doc) => ads.push({ id: doc.id, ...doc.data() }));
-            renderAds(ads);
-        });
-    </script>
-</body>
-</html>
+    // Charger les annonces
+    const q = query(collection(db, 'annonces'), orderBy('createdAt', 'desc'));
+    onSnapshot(q, (snapshot) => {
+        let ads = [];
+        snapshot.forEach((doc) => ads.push({ id: doc.id, ...doc.data() }));
+        window.renderAds(ads);
+    });
+</script>
