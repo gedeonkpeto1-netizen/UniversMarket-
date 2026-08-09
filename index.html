@@ -1,36 +1,6 @@
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-    import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyDUSW3HT16j3ESHu3k4RQjR42sVRflv5g8",
-        authDomain: "universmarket-5834b.firebaseapp.com",
-        projectId: "universmarket-5834b",
-        storageBucket: "universmarket-5834b.appspot.com",
-        messagingSenderId: "921170766621",
-        appId: "1:921170766621:web:a4fdd73b9492d47a748c96"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    // Fonction de formatage au cas où elle manquerait ailleurs
-    window.formatPrice = function(price) {
-        return "$" + price;
-    };
-
-    window.listenAds = function() {
-        const q = query(collection(db, 'annonces'), orderBy('createdAt', 'desc'));
-        onSnapshot(q, (snapshot) => {
-            let ads = [];
-            snapshot.forEach((doc) => ads.push({ id: doc.id, ...doc.data() }));
-            if (window.renderAds) window.renderAds(ads);
-        });
-    };
-
-    // On lance seulement quand la page est prête
-    window.addEventListener('DOMContentLoaded', () => {
-        if (typeof listenAds === 'function') listenAds();
-    });
-</script>
+<!DOCTYPE html>
+<html>
+<body>
+    <h1>Le site fonctionne !</h1>
+</body>
+</html>
