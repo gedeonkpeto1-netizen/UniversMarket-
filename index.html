@@ -3,7 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UniversMarket - Global Marketplace</title>
+    <title>UniversMarket Global - Marketplace Internationale</title>
+    
+    <!-- Balises SEO & Réseaux Sociaux (Open Graph) -->
+    <meta name="description" content="Achetez et vendez en ligne en RDC et à l'international. Paiement sécurisé par Carte Bancaire, PayPal et négociation WhatsApp.">
+    <meta property="og:title" content="UniversMarket Global - Marketplace Internationale">
+    <meta property="og:description" content="Achetez et vendez facilement au Congo et partout dans le monde.">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=1200">
+    <meta property="og:type" content="website">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
@@ -11,17 +19,17 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
-    <!-- SDK PayPal (Client-ID Sandbox de test, remplaçable par votre vrai ID) -->
+    <!-- SDK PayPal -->
     <script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD"></script>
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="bg-gray-100 font-sans flex flex-col min-h-screen">
 
     <!-- Header / Navigation -->
     <header class="bg-blue-600 text-white p-4 shadow-md sticky top-0 z-40">
         <div class="flex justify-between items-center max-w-6xl mx-auto flex-wrap gap-2">
             
             <!-- Logo -->
-            <div class="flex items-center gap-2 cursor-pointer" onclick="showTab('home')">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="resetFilters()">
                 <div class="bg-white text-blue-600 p-2 rounded-lg shadow-inner">
                     <i class="fa-solid fa-globe text-xl"></i>
                 </div>
@@ -31,7 +39,7 @@
                 </div>
             </div>
             
-            <!-- Outils Internationaux -->
+            <!-- Outils Devises, Langues & Villes -->
             <div class="flex items-center gap-2">
                 <select id="currencySelect" onchange="changeCurrency(this.value)" class="bg-blue-700/50 border border-white/30 text-white text-xs rounded-lg px-2 py-1.5 outline-none font-bold cursor-pointer">
                     <option value="USD" class="text-black">$ USD</option>
@@ -56,6 +64,7 @@
             <button onclick="filterCity('Monde Entier')" class="px-3 py-1.5 rounded-lg bg-blue-600 text-white font-bold" data-i18n="allRegions">Monde Entier</button>
             <button onclick="filterCity('Kinshasa')" class="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-blue-50 font-medium">Kinshasa (RDC)</button>
             <button onclick="filterCity('Lubumbashi')" class="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-blue-50 font-medium">Lubumbashi (RDC)</button>
+            <button onclick="filterCity('Goma')" class="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-blue-50 font-medium">Goma (RDC)</button>
             <button onclick="filterCity('Paris')" class="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-blue-50 font-medium">Paris (France)</button>
             <button onclick="filterCity('Montréal')" class="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-blue-50 font-medium">Montréal (Canada)</button>
             <button onclick="filterCity('Autre')" class="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-blue-50 font-medium" data-i18n="otherLocations">Autres Pays / Villes</button>
@@ -63,110 +72,189 @@
     </header>
 
     <!-- Page Accueil -->
-    <main id="tabHome" class="p-4 md:p-6 max-w-6xl mx-auto pb-24">
-        <div class="relative mb-6">
-            <input type="text" id="searchInput" onkeyup="filterAds()" placeholder="Rechercher un produit, une ville, un pays..." class="w-full p-3 pl-12 rounded-xl border border-gray-200 shadow-sm focus:ring-2 focus:ring-blue-200 outline-none transition" data-i18n-ph="searchPlaceholder">
-            <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-        </div>
-
-        <div class="bg-blue-600 text-white p-6 rounded-2xl mb-8 flex justify-between items-center shadow-lg">
-            <div>
-                <span class="bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider" data-i18n="heroBadge">Marketplace Mondiale</span>
-                <h2 class="text-2xl font-extrabold mt-3 mb-1" data-i18n="heroTitle">Achetez & Vendez Partout</h2>
-                <p class="text-blue-100 text-sm mb-4" data-i18n="heroSub">Paiement par Carte Bancaire ou Négociation WhatsApp</p>
+    <main class="p-4 md:p-6 max-w-6xl mx-auto pb-12 flex-grow w-full">
+        
+        <!-- Barre de recherche et Tri -->
+        <div class="flex flex-col sm:flex-row gap-3 mb-6">
+            <div class="relative flex-grow">
+                <input type="text" id="searchInput" onkeyup="applyFilters()" placeholder="Rechercher un produit, une ville, un pays..." class="w-full p-3 pl-12 rounded-xl border border-gray-200 shadow-sm focus:ring-2 focus:ring-blue-200 outline-none transition" data-i18n-ph="searchPlaceholder">
+                <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
             </div>
-            <button onclick="openModal()" class="bg-white text-blue-600 font-bold px-5 py-3 rounded-xl shadow hover:bg-gray-50 transition"><i class="fa-solid fa-plus mr-2"></i> <span data-i18n="publishBtn">Publier</span></button>
+            
+            <!-- Filtre Tri par prix -->
+            <select id="sortSelect" onchange="applyFilters()" class="p-3 bg-white border border-gray-200 rounded-xl text-sm font-medium outline-none shadow-sm cursor-pointer text-gray-700">
+                <option value="recent">Tri : Les plus récents</option>
+                <option value="asc">Prix : Du - cher au + cher</option>
+                <option value="desc">Prix : Du + cher au - cher</option>
+            </select>
         </div>
 
-        <!-- Annonces -->
+        <!-- Banner Hero -->
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-6 md:p-8 rounded-2xl mb-8 flex justify-between items-center shadow-xl relative overflow-hidden">
+            <div class="relative z-10 max-w-lg">
+                <span class="bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider" data-i18n="heroBadge">Marketplace Mondiale</span>
+                <h2 class="text-2xl md:text-3xl font-extrabold mt-3 mb-2 leading-tight" data-i18n="heroTitle">Achetez & Vendez Partout</h2>
+                <p class="text-blue-100 text-sm mb-5" data-i18n="heroSub">Paiement par Carte Bancaire ou Négociation directe WhatsApp</p>
+                <button onclick="openModal()" class="bg-white text-blue-600 font-extrabold px-6 py-3 rounded-xl shadow-lg hover:bg-blue-50 transition transform active:scale-95 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-plus text-lg"></i> <span data-i18n="publishBtn">Publier une annonce</span>
+                </button>
+            </div>
+            <i class="fa-solid fa-cart-shopping text-9xl text-white/10 absolute -right-4 -bottom-4 hidden sm:block"></i>
+        </div>
+
+        <!-- Filtres par catégories -->
+        <div class="flex gap-2 overflow-x-auto pb-4 mb-6 no-scrollbar">
+            <button onclick="filterCategory('Toutes')" class="cat-btn active px-4 py-2 rounded-full text-xs font-bold bg-blue-600 text-white whitespace-nowrap shadow-sm">Toutes</button>
+            <button onclick="filterCategory('Téléphones')" class="cat-btn px-4 py-2 rounded-full text-xs font-bold bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 whitespace-nowrap shadow-sm">📱 Téléphones</button>
+            <button onclick="filterCategory('Électronique')" class="cat-btn px-4 py-2 rounded-full text-xs font-bold bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 whitespace-nowrap shadow-sm">💻 Électronique</button>
+            <button onclick="filterCategory('Véhicules')" class="cat-btn px-4 py-2 rounded-full text-xs font-bold bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 whitespace-nowrap shadow-sm">🚗 Véhicules</button>
+            <button onclick="filterCategory('Mode & Luxe')" class="cat-btn px-4 py-2 rounded-full text-xs font-bold bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 whitespace-nowrap shadow-sm">👗 Mode & Luxe</button>
+            <button onclick="filterCategory('Immobilier')" class="cat-btn px-4 py-2 rounded-full text-xs font-bold bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 whitespace-nowrap shadow-sm">🏠 Immobilier</button>
+        </div>
+
+        <!-- Conteneur d'annonces -->
         <div>
-            <h3 class="text-lg font-bold text-gray-800 mb-4" id="adsCountTitle">Annonces récentes</h3>
-            <div id="adsContainer" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-layer-group text-blue-600"></i> <span id="adsCountTitle">Annonces récentes</span>
+            </h3>
             
-            <div id="emptyAdsMessage" class="text-center py-12 text-gray-500 bg-white rounded-xl shadow-sm border border-gray-100 hidden">
-                <i class="fa-solid fa-box-open text-4xl mb-4 text-gray-300"></i>
-                <p data-i18n="noAds">Aucune annonce disponible.</p>
+            <div id="adsContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+            
+            <div id="emptyAdsMessage" class="text-center py-16 text-gray-500 bg-white rounded-2xl shadow-sm border border-gray-100 hidden">
+                <i class="fa-solid fa-box-open text-5xl mb-4 text-gray-300"></i>
+                <p class="font-medium text-base" data-i18n="noAds">Aucune annonce disponible dans cette catégorie.</p>
             </div>
         </div>
     </main>
 
-    <!-- Modal Formulaire d'annonce -->
-    <div id="publishModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <!-- Modal Formulaire d'Annonce -->
+    <div id="publishModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl relative">
-            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
             <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
                 <i class="fa-solid fa-bullhorn text-blue-600"></i> <span data-i18n="modalTitle">Publier une annonce</span>
             </h3>
 
             <form id="addAdForm" onsubmit="saveAd(event)" class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="titleLabel">Titre</label>
-                    <input type="text" id="adTitle" required placeholder="Ex: iPhone 15 Pro Max" class="w-full p-2.5 rounded-lg border border-gray-300 outline-none">
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1" data-i18n="titleLabel">Titre de l'article</label>
+                    <input type="text" id="adTitle" required placeholder="Ex: Toyota RAV4 2020 ou iPhone 15 Pro" class="w-full p-3 rounded-xl border border-gray-300 outline-none focus:ring-2 focus:ring-blue-500 text-sm">
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="priceLabel">Prix ($ USD)</label>
-                        <input type="number" id="adPrice" required placeholder="Ex: 850" class="w-full p-2.5 rounded-lg border border-gray-300 outline-none">
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1" data-i18n="priceLabel">Prix ($ USD)</label>
+                        <input type="number" id="adPrice" required placeholder="Ex: 850" class="w-full p-3 rounded-xl border border-gray-300 outline-none focus:ring-2 focus:ring-blue-500 text-sm">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="categoryLabel">Catégorie</label>
-                        <select id="adCategory" class="w-full p-2.5 rounded-lg border border-gray-300 outline-none">
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1" data-i18n="categoryLabel">Catégorie</label>
+                        <select id="adCategory" class="w-full p-3 rounded-xl border border-gray-300 outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white">
                             <option value="Téléphones">Téléphones</option>
                             <option value="Électronique">Électronique</option>
+                            <option value="Véhicules">Véhicules</option>
                             <option value="Mode & Luxe">Mode & Luxe</option>
+                            <option value="Immobilier">Immobilier</option>
                             <option value="Autre">Autre</option>
                         </select>
                     </div>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="cityLabel">Ville / Pays</label>
-                        <input type="text" id="adCity" required placeholder="Ex: Kinshasa, Paris" class="w-full p-2.5 rounded-lg border border-gray-300 outline-none">
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1" data-i18n="cityLabel">Ville / Pays</label>
+                        <input type="text" id="adCity" required placeholder="Ex: Kinshasa, Paris" class="w-full p-3 rounded-xl border border-gray-300 outline-none focus:ring-2 focus:ring-blue-500 text-sm">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="phoneLabel">WhatsApp Int.</label>
-                        <input type="tel" id="adPhone" required placeholder="+243810000000" class="w-full p-2.5 rounded-lg border border-gray-300 outline-none">
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1" data-i18n="phoneLabel">WhatsApp Int.</label>
+                        <input type="tel" id="adPhone" required placeholder="+243810000000" class="w-full p-3 rounded-xl border border-gray-300 outline-none focus:ring-2 focus:ring-blue-500 text-sm">
                     </div>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="imageLabel">Photo</label>
-                    <input type="file" id="adImageFile" accept="image/*" class="w-full p-2 rounded-lg border border-gray-300 bg-gray-50 text-sm">
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1" data-i18n="imageLabel">Photo illustrative</label>
+                    <input type="file" id="adImageFile" accept="image/*" class="w-full p-2 rounded-xl border border-gray-300 bg-gray-50 text-xs">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="descriptionLabel">Description</label>
-                    <textarea id="adDescription" rows="3" placeholder="Détails du produit..." class="w-full p-2.5 rounded-lg border border-gray-300 outline-none"></textarea>
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1" data-i18n="descriptionLabel">Description détaillée</label>
+                    <textarea id="adDescription" rows="3" placeholder="État du produit, garantie, modalité de livraison..." class="w-full p-3 rounded-xl border border-gray-300 outline-none focus:ring-2 focus:ring-blue-500 text-sm"></textarea>
                 </div>
-                <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow hover:bg-blue-700 transition">Publier l'annonce</button>
+                <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl shadow-lg hover:bg-blue-700 transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> Publier l'annonce maintenant
+                </button>
             </form>
         </div>
     </div>
 
-    <!-- MODAL PAIEMENT EN LIGNE INT. -->
-    <div id="paymentModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
+    <!-- Modal Paiement En Ligne -->
+    <div id="paymentModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl relative text-center">
-            <button onclick="closePaymentModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
+            <button onclick="closePaymentModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
             
-            <i class="fa-solid fa-shield-halved text-4xl text-blue-600 mb-2"></i>
+            <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
             <h3 class="text-xl font-bold text-gray-800" id="payModalTitle">Paiement Sécurisé</h3>
-            <p class="text-sm text-gray-500 mb-4" id="payModalPrice"></p>
+            <p class="text-sm font-semibold text-blue-600 mb-4" id="payModalPrice"></p>
 
             <div class="space-y-3">
-                <p class="text-xs text-gray-400 font-semibold uppercase tracking-wider">Acheter par Carte Bancaire / PayPal</p>
-                <div id="paypal-button-container" class="mt-2"></div>
+                <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">Option 1 : Carte Bancaire / PayPal</p>
+                <div id="paypal-button-container" class="mt-2 min-h-[150px]"></div>
                 
                 <div class="relative my-4">
                     <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-200"></div></div>
-                    <div class="relative flex justify-center text-xs uppercase"><span class="bg-white px-2 text-gray-400">Ou</span></div>
+                    <div class="relative flex justify-center text-xs uppercase"><span class="bg-white px-2 text-gray-400 font-bold">Ou</span></div>
                 </div>
 
-                <a id="payWhatsappBtn" href="#" target="_blank" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition">
-                    <i class="fa-brands fa-whatsapp text-xl"></i> Discuter / Négocier sur WhatsApp
+                <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">Option 2 : Directement Vendeur</p>
+                <a id="payWhatsappBtn" href="#" target="_blank" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition shadow-md">
+                    <i class="fa-brands fa-whatsapp text-xl"></i> Discuter & Négocier sur WhatsApp
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- JS Firebase & Logique de Paiement -->
+    <!-- FOOTER PROFESSIONNEL -->
+    <footer class="bg-gray-900 text-gray-300 pt-10 pb-6 border-t border-gray-800 mt-auto">
+        <div class="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8 mb-8 text-sm">
+            <div>
+                <div class="flex items-center gap-2 mb-3">
+                    <i class="fa-solid fa-globe text-blue-500 text-xl"></i>
+                    <span class="font-bold text-white text-lg">UniversMarket</span>
+                </div>
+                <p class="text-xs text-gray-400 leading-relaxed">Plateforme mondiale de petites annonces et de négociation commerciale directe RDC & International.</p>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-3 uppercase text-xs tracking-wider">Garanties & Sécurité</h4>
+                <ul class="space-y-2 text-xs text-gray-400">
+                    <li><i class="fa-solid fa-lock text-green-400 mr-1.5"></i> Paiements sécurisés SSL</li>
+                    <li><i class="fa-solid fa-user-check text-blue-400 mr-1.5"></i> Profils vendeurs vérifiés</li>
+                    <li><i class="fa-brands fa-paypal text-indigo-400 mr-1.5"></i> Protection des acheteurs</li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-3 uppercase text-xs tracking-wider">Devises Supportées</h4>
+                <div class="flex flex-wrap gap-2 text-xs">
+                    <span class="bg-gray-800 px-2.5 py-1 rounded border border-gray-700 text-gray-300">$ USD</span>
+                    <span class="bg-gray-800 px-2.5 py-1 rounded border border-gray-700 text-gray-300">€ EUR</span>
+                    <span class="bg-gray-800 px-2.5 py-1 rounded border border-gray-700 text-gray-300">FC CDF</span>
+                    <span class="bg-gray-800 px-2.5 py-1 rounded border border-gray-700 text-gray-300">$ CAD</span>
+                </div>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-3 uppercase text-xs tracking-wider">Support Client</h4>
+                <p class="text-xs text-gray-400 mb-3">Besoin d'aide pour publier ou effectuer un paiement ?</p>
+                <a href="https://wa.me/243810000000" target="_blank" class="inline-flex items-center gap-2 text-xs bg-green-600 text-white font-bold px-3 py-2 rounded-lg hover:bg-green-700 transition">
+                    <i class="fa-brands fa-whatsapp text-sm"></i> Assistance WhatsApp
+                </a>
+            </div>
+        </div>
+        <div class="max-w-6xl mx-auto px-4 pt-6 border-t border-gray-800 flex flex-col sm:flex-row justify-between items-center text-xs text-gray-500 gap-3">
+            <p>© 2026 UniversMarket Global. Tous droits réservés.</p>
+            <div class="flex gap-4">
+                <a href="#" class="hover:text-white transition">Conditions Générales</a>
+                <a href="#" class="hover:text-white transition">Confidentialité</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JS Firebase & Logique de Fonctionnement -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyDUSW3HT16j3ESHu3k4RQjR42sVRFlv5xs",
@@ -201,17 +289,17 @@
                 searchPlaceholder: "Rechercher un produit, une ville, un pays...",
                 heroBadge: "Marketplace Mondiale",
                 heroTitle: "Achetez & Vendez Partout",
-                heroSub: "Paiement Carte Bancaire ou Négociation WhatsApp",
-                publishBtn: "Publier",
-                noAds: "Aucune annonce disponible.",
+                heroSub: "Paiement par Carte Bancaire ou Négociation directe WhatsApp",
+                publishBtn: "Publier une annonce",
+                noAds: "Aucune annonce disponible dans cette catégorie.",
                 modalTitle: "Publier une annonce",
-                titleLabel: "Titre",
+                titleLabel: "Titre de l'article",
                 priceLabel: "Prix ($ USD)",
                 categoryLabel: "Catégorie",
                 cityLabel: "Ville / Pays",
                 phoneLabel: "WhatsApp Int.",
-                imageLabel: "Photo",
-                descriptionLabel: "Description",
+                imageLabel: "Photo illustrative",
+                descriptionLabel: "Description détaillée",
                 buyBtn: "Acheter / Contacter"
             },
             en: {
@@ -221,17 +309,17 @@
                 searchPlaceholder: "Search for a product, city, country...",
                 heroBadge: "Global Marketplace",
                 heroTitle: "Buy & Sell Anywhere",
-                heroSub: "Pay with Card or Negotiate on WhatsApp",
-                publishBtn: "Post Ad",
-                noAds: "No listings available right now.",
+                heroSub: "Pay with Credit Card or Negotiate on WhatsApp",
+                publishBtn: "Post an Ad",
+                noAds: "No listings available in this category.",
                 modalTitle: "Post a New Listing",
-                titleLabel: "Title",
+                titleLabel: "Item Title",
                 priceLabel: "Price (USD $)",
                 categoryLabel: "Category",
                 cityLabel: "City / Country",
                 phoneLabel: "WhatsApp Int.",
                 imageLabel: "Photo",
-                descriptionLabel: "Description",
+                descriptionLabel: "Detailed Description",
                 buyBtn: "Buy / Contact"
             }
         };
@@ -258,7 +346,6 @@
 
         function openModal() { document.getElementById('publishModal').classList.remove('hidden'); }
         function closeModal() { document.getElementById('publishModal').classList.add('hidden'); }
-
         function toggleCityFilter() { document.getElementById('cityDropdown').classList.toggle('hidden'); }
 
         function filterCity(city) {
@@ -268,27 +355,59 @@
             applyFilters();
         }
 
+        function filterCategory(cat) {
+            selectedCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                if(btn.innerText.includes(cat) || (cat==='Toutes' && btn.innerText==='Toutes')) {
+                    btn.className = "cat-btn active px-4 py-2 rounded-full text-xs font-bold bg-blue-600 text-white whitespace-nowrap shadow-sm";
+                } else {
+                    btn.className = "cat-btn px-4 py-2 rounded-full text-xs font-bold bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 whitespace-nowrap shadow-sm";
+                }
+            });
+            applyFilters();
+        }
+
+        function resetFilters() {
+            selectedCategory = 'Toutes';
+            selectedCity = 'Monde Entier';
+            document.getElementById('searchInput').value = '';
+            document.getElementById('selectedCityText').innerText = 'Monde Entier';
+            filterCategory('Toutes');
+        }
+
         function applyFilters() {
             const query = document.getElementById('searchInput').value.toLowerCase();
-            let filtered = allAds;
+            const sortBy = document.getElementById('sortSelect').value;
+            let filtered = [...allAds];
+
+            if (selectedCategory !== 'Toutes') {
+                filtered = filtered.filter(ad => ad.category === selectedCategory);
+            }
 
             if (selectedCity !== 'Monde Entier') {
                 filtered = filtered.filter(ad => ad.city.toLowerCase().includes(selectedCity.toLowerCase()));
             }
 
             if (query) {
-                filtered = filtered.filter(ad => ad.title.toLowerCase().includes(query) || ad.description.toLowerCase().includes(query) || ad.city.toLowerCase().includes(query));
+                filtered = filtered.filter(ad => ad.title.toLowerCase().includes(query) || (ad.description && ad.description.toLowerCase().includes(query)) || ad.city.toLowerCase().includes(query));
+            }
+
+            if (sortBy === 'asc') {
+                filtered.sort((a, b) => (a.priceUSD || 0) - (b.priceUSD || 0));
+            } else if (sortBy === 'desc') {
+                filtered.sort((a, b) => (b.priceUSD || 0) - (a.priceUSD || 0));
+            } else {
+                filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
             }
 
             renderAds(filtered);
         }
 
-        function filterAds() { applyFilters(); }
-
         async function saveAd(e) {
             e.preventDefault();
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = true;
+            submitBtn.innerText = "Publication en cours...";
 
             const title = document.getElementById('adTitle').value;
             const price = document.getElementById('adPrice').value;
@@ -336,7 +455,9 @@
             } catch (error) {
                 alert("Erreur: " + error.message);
             } finally {
-                document.getElementById('submitBtn').disabled = false;
+                const submitBtn = document.getElementById('submitBtn');
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Publier l'annonce maintenant";
             }
         }
 
@@ -348,12 +469,11 @@
             });
         }
 
-        // Modal de Paiement
         function openPaymentModal(title, priceUSD, phone) {
             document.getElementById('payModalTitle').innerText = title;
-            document.getElementById('payModalPrice').innerText = `Montant : ${priceUSD} $ USD`;
+            document.getElementById('payModalPrice').innerText = `Prix : ${formatPrice(priceUSD)}`;
             
-            const waMsg = encodeURIComponent(`Bonjour, je souhaite acheter votre produit '${title}' sur UniversMarket.`);
+            const waMsg = encodeURIComponent(`Bonjour, je suis intéressé par votre article "${title}" sur UniversMarket.`);
             document.getElementById('payWhatsappBtn').href = `https://wa.me/${phone}?text=${waMsg}`;
 
             document.getElementById('paypal-button-container').innerHTML = '';
@@ -361,14 +481,12 @@
             paypal.Buttons({
                 createOrder: function(data, actions) {
                     return actions.order.create({
-                        purchase_units: [{
-                            amount: { value: priceUSD.toString() }
-                        }]
+                        purchase_units: [{ amount: { value: priceUSD.toString() } }]
                     });
                 },
                 onApprove: function(data, actions) {
                     return actions.order.capture().then(function(details) {
-                        alert('Paiement réussi par ' + details.payer.name.given_name + ' ! Le vendeur vous recontactera pour la livraison.');
+                        alert('Paiement validé par ' + details.payer.name.given_name + ' ! Le vendeur prendra contact avec vous.');
                         closePaymentModal();
                     });
                 }
@@ -379,6 +497,12 @@
 
         function closePaymentModal() {
             document.getElementById('paymentModal').classList.add('hidden');
+        }
+
+        function shareAd(title) {
+            const shareUrl = window.location.href;
+            const waText = encodeURIComponent(`Regarde cet article sur UniversMarket : ${title} -> ${shareUrl}`);
+            window.open(`https://wa.me/?text=${waText}`, '_blank');
         }
 
         function renderAds(adsToDisplay) {
@@ -395,21 +519,26 @@
             const t = translations[currentLang];
 
             container.innerHTML = adsToDisplay.map(ad => `
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition flex flex-col justify-between">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition duration-200 flex flex-col justify-between group">
                     <div>
-                        <img src="${ad.image}" alt="${ad.title}" class="w-full h-48 object-cover bg-gray-100">
+                        <div class="relative overflow-hidden">
+                            <img src="${ad.image}" alt="${ad.title}" class="w-full h-48 object-cover group-hover:scale-105 transition duration-300 bg-gray-100">
+                            <span class="absolute top-3 left-3 bg-white/90 backdrop-blur-md text-blue-600 text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm">${ad.category}</span>
+                            <button onclick="shareAd('${ad.title.replace(/'/g, "\\'")}')" class="absolute top-3 right-3 bg-white/90 backdrop-blur-md text-gray-700 hover:text-green-600 w-8 h-8 rounded-full flex items-center justify-center shadow-sm transition">
+                                <i class="fa-brands fa-whatsapp"></i>
+                            </button>
+                        </div>
                         <div class="p-4">
-                            <div class="flex justify-between items-center mb-2">
-                                <span class="bg-blue-50 text-blue-600 text-xs px-2 py-0.5 rounded-full font-medium">${ad.category}</span>
-                                <span class="text-xs text-gray-500 font-semibold"><i class="fa-solid fa-location-dot mr-1"></i>${ad.city}</span>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-xs text-gray-500 font-semibold"><i class="fa-solid fa-location-dot mr-1 text-red-500"></i>${ad.city}</span>
                             </div>
-                            <h4 class="font-bold text-gray-800 text-lg mb-1">${ad.title}</h4>
-                            <p class="text-blue-600 font-extrabold text-xl mb-2">${formatPrice(ad.priceUSD || 0)}</p>
-                            <p class="text-gray-600 text-xs mb-4 line-clamp-2">${ad.description}</p>
+                            <h4 class="font-bold text-gray-800 text-base mb-1 line-clamp-1">${ad.title}</h4>
+                            <p class="text-blue-600 font-extrabold text-lg mb-2">${formatPrice(ad.priceUSD || 0)}</p>
+                            <p class="text-gray-500 text-xs mb-3 line-clamp-2 leading-relaxed">${ad.description || 'Aucune description'}</p>
                         </div>
                     </div>
                     <div class="p-4 pt-0">
-                        <button onclick="openPaymentModal('${ad.title.replace(/'/g, "\\'")}', ${ad.priceUSD || 0}, '${ad.phone}')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition text-sm">
+                        <button onclick="openPaymentModal('${ad.title.replace(/'/g, "\\'")}', ${ad.priceUSD || 0}, '${ad.phone}')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition text-xs shadow-md">
                             <i class="fa-solid fa-credit-card"></i> ${t.buyBtn}
                         </button>
                     </div>
