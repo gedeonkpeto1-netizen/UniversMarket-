@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UniversMarket RDC</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+<body class="bg-gray-100 font-sans pb-20">
+
+  <!-- En-tête / Header -->
+  <header class="bg-blue-600 text-white p-4 sticky top-0 z-40 shadow-md">
+    <div class="flex justify-between items-center mb-3">
+      <div class="flex items-center gap-2">
+        <div class="bg-white text-blue-600 p-2 rounded-lg font-bold">
+          <i class="fa-solid fa-bag-shopping text-xl"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-lg leading-tight">UniversMarket <span class="text-xs bg-blue-800 px-1.5 py-0.5 rounded">RDC</span></h1>
+          <p class="text-xs text-blue-100">Marketplace RDC & Direct WhatsApp</p>
+        </div>
+      </div>
+      
+      <!-- Filtre Ville -->
+      <select id="cityFilter" class="bg-blue-700 text-white text-xs px-3 py-1.5 rounded-full border border-blue-500 focus:outline-none">
+        <option value="all">Toute la RDC</option>
+        <option value="Kinshasa">Kinshasa</option>
+        <option value="Lubumbashi">Lubumbashi</option>
+        <option value="Goma">Goma</option>
+        <option value="Bukavu">Bukavu</option>
+      </select>
+    </div>
+
+    <!-- Barre de Recherche -->
+    <div class="relative">
+      <input type="text" id="searchInput" placeholder="Rechercher un produit, téléphone..." class="w-full pl-10 pr-4 py-2 rounded-full text-black text-sm focus:outline-none shadow-inner">
+      <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-2.5 text-gray-400"></i>
+    </div>
+  </header>
+
+  <!-- Bannière -->
+  <section class="p-4">
+    <div class="bg-blue-700 text-white p-4 rounded-2xl flex justify-between items-center shadow-sm">
+      <div>
+        <span class="bg-blue-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wide">Achat & Vente RDC</span>
+        <h2 class="font-bold text-base mt-1">WhatsApp Direct</h2>
+        <p class="text-xs text-blue-200">Contactez directement les vendeurs</p>
+      </div>
+      <button onclick="toggleModal('publishModal')" class="bg-white text-blue-700 px-4 py-2 rounded-xl text-sm font-bold shadow hover:bg-blue-50 transition">
+        + Publier
+      </button>
+    </div>
+  </section>
+
+  <!-- Catégories -->
+  <section class="px-4 mb-4">
+    <div class="flex justify-between items-center mb-2">
+      <h3 class="font-bold text-gray-800">Catégories</h3>
+      <button onclick="filterCategory('all')" class="text-blue-600 text-xs font-semibold">Voir tout</button>
+    </div>
+    <div class="grid grid-cols-4 gap-2 text-center text-xs">
+      <button onclick="filterCategory('all')" class="cat-btn bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center gap-1 active:scale-95 transition">
+        <i class="fa-solid fa-border-all text-blue-600 text-lg"></i>
+        <span>Toutes</span>
+      </button>
+      <button onclick="filterCategory('Téléphones')" class="cat-btn bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center gap-1 active:scale-95 transition">
+        <i class="fa-solid fa-mobile-screen text-blue-600 text-lg"></i>
+        <span>Téléphones</span>
+      </button>
+      <button onclick="filterCategory('Électronique')" class="cat-btn bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center gap-1 active:scale-95 transition">
+        <i class="fa-solid fa-tv text-blue-600 text-lg"></i>
+        <span>Électronique</span>
+      </button>
+      <button onclick="filterCategory('Meubles')" class="cat-btn bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center gap-1 active:scale-95 transition">
+        <i class="fa-solid fa-couch text-blue-600 text-lg"></i>
+        <span>Meubles</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- Liste des Annonces -->
+  <main class="px-4">
+    <div class="flex justify-between items-center mb-3">
+      <h3 class="font-bold text-gray-800">Annonces récentes (<span id="adCount">0</span>)</h3>
+    </div>
+    <div id="productGrid" class="grid grid-cols-2 gap-3"></div>
+  </main>
+
+  <!-- Modal : Ajouter une annonce -->
+  <div id="publishModal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-2xl p-5 relative max-h-[90vh] overflow-y-auto">
+      <button onclick="toggleModal('publishModal')" class="absolute top-4 right-4 text-gray-400 hover:text-black">
+        <i class="fa-solid fa-xmark text-xl"></i>
+      </button>
+      <h3 class="font-bold text-lg mb-4 text-gray-800">Publier une annonce</h3>
+      <form id="addAdForm" class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">Titre de l'annonce *</label>
+          <input type="text" id="pTitle" required class="w-full border p-2 rounded-lg text-sm" placeholder="ex: iPhone 14 Pro Max 256Go">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">Prix ($ USD) *</label>
+          <input type="number" id="pPrice" required class="w-full border p-2 rounded-lg text-sm" placeholder="ex: 650">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Catégorie</label>
+            <select id="pCategory" class="w-full border p-2 rounded-lg text-sm">
+              <option value="Téléphones">Téléphones</option>
+              <option value="Électronique">Électronique</option>
+              <option value="Meubles">Meubles</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Ville RDC</label>
+            <select id="pCity" class="w-full border p-2 rounded-lg text-sm">
+              <option value="Kinshasa">Kinshasa</option>
+              <option value="Lubumbashi">Lubumbashi</option>
+              <option value="Goma">Goma</option>
+              <option value="Bukavu">Bukavu</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">Numéro WhatsApp Direct (243...) *</label>
+          <input type="tel" id="pPhone" required class="w-full border p-2 rounded-lg text-sm" placeholder="243810000000">
+        </div>
+        
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">Photo du produit *</label>
+          <input type="file" id="pImageFile" accept="image/*" required class="w-full border p-2 rounded-lg text-sm bg-gray-50 text-gray-600">
+        </div>
+
+        <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white font-bold py-2.5 rounded-xl mt-2 hover:bg-blue-700">
+          Publier l'annonce
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-2 px-6 flex justify-between items-center z-40 text-gray-500 text-xs">
+    <button onclick="filterCategory('all')" class="flex flex-col items-center text-blue-600">
+      <i class="fa-solid fa-house text-lg"></i>
+      <span>Accueil</span>
+    </button>
+    <button onclick="document.getElementById('searchInput').focus()" class="flex flex-col items-center hover:text-blue-600">
+      <i class="fa-solid fa-magnifying-glass text-lg"></i>
+      <span>Rechercher</span>
+    </button>
+    <button onclick="toggleModal('publishModal')" class="flex flex-col items-center -mt-5 bg-blue-600 text-white p-3 rounded-full shadow-lg border-4 border-gray-100">
+      <i class="fa-solid fa-plus text-xl"></i>
+    </button>
+    <button onclick="alert('Favoris')" class="flex flex-col items-center hover:text-blue-600">
+      <i class="fa-regular fa-heart text-lg"></i>
+      <span>Favoris</span>
+    </button>
+    <button onclick="alert('Compte')" class="flex flex-col items-center hover:text-blue-600">
+      <i class="fa-regular fa-user text-lg"></i>
+      <span>Compte</span>
+    </button>
+  </nav>
+
+  <script>
+    // Config Firebase (UniversMarket)
+    const firebaseConfig = {
+      apiKey: "AizaSyDUSW3HT16j3ESHu3k4",
+      authDomain: "universmarket-5834b.firebaseapp.com",
+      projectId: "universmarket-5834b",
+      storageBucket: "universmarket-5834b.appspot.com",
+      messagingSenderId: "921170766621",
+      appId: "1:921170766621:web:a4fdd7"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    let ads = [];
+    let currentCategory = 'all';
+
+    // Charger les annonces depuis Firebase en temps réel
+    db.collection("annonces").orderBy("createdAt", "desc").onSnapshot((snapshot) => {
+      ads = [];
+      snapshot.forEach((doc) => {
+        ads.push({ id: doc.id, ...doc.data() });
+      });
+      renderAds();
+    });
+
+    function renderAds() {
+      const grid = document.getElementById('productGrid');
+      const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+      const selectedCity = document.getElementById('cityFilter').value;
+
+      const filteredAds = ads.filter(ad => {
+        const matchesCategory = currentCategory === 'all' || ad.category === currentCategory;
+        const matchesCity = selectedCity === 'all' || ad.city === selectedCity;
+        const matchesSearch = ad.title.toLowerCase().includes(searchQuery);
+        return matchesCategory && matchesCity && matchesSearch;
+      });
+
+      document.getElementById('adCount').innerText = filteredAds.length;
+      grid.innerHTML = '';
+
+      if(filteredAds.length === 0) {
+        grid.innerHTML = `<p class="col-span-2 text-center text-gray-400 py-8 text-sm">Aucune annonce disponible.</p>`;
+        return;
+      }
+
+      filteredAds.forEach(ad => {
+        const waLink = `https://wa.me/${ad.phone}?text=${encodeURIComponent('Bonjour, je suis intéressé par votre annonce : ' + ad.title)}`;
+        
+        grid.innerHTML += `
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col justify-between">
+            <div class="relative">
+              <img src="${ad.image}" alt="${ad.title}" class="w-full h-32 object-cover">
+            </div>
+            <div class="p-2.5 flex-1 flex flex-col justify-between">
+              <div>
+                <span class="text-[10px] text-gray-400 font-medium block">${ad.city} • ${ad.category}</span>
+                <h4 class="font-bold text-xs text-gray-800 line-clamp-2 mt-0.5">${ad.title}</h4>
+              </div>
+              <div class="mt-2 flex items-center justify-between">
+                <span class="font-extrabold text-sm text-blue-700">${ad.price} $</span>
+                <a href="${waLink}" target="_blank" class="bg-green-500 text-white px-2 py-1.5 rounded-lg text-xs hover:bg-green-600 flex items-center gap-1">
+                  <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp
+                </a>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function toggleModal(id) {
+      document.getElementById(id).classList.toggle('hidden');
+    }
+
+    function filterCategory(cat) {
+      currentCategory = cat;
+      renderAds();
+    }
+
+    document.getElementById('addAdForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.innerText = "Publication en cours...";
+      submitBtn.disabled = true;
+
+      const fileInput = document.getElementById('pImageFile');
+      const file = fileInput.files[0];
+
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const newAd = {
+            title: document.getElementById('pTitle').value,
+            price: Number(document.getElementById('pPrice').value),
+            category: document.getElementById('pCategory').value,
+            city: document.getElementById('pCity').value,
+            phone: document.getElementById('pPhone').value,
+            image: e.target.result,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          };
+
+          db.collection("annonces").add(newAd).then(() => {
+            toggleModal('publishModal');
+            document.getElementById('addAdForm').reset();
+            submitBtn.innerText = "Publier l'annonce";
+            submitBtn.disabled = false;
+          }).catch(err => {
+            alert("Erreur lors de la publication : " + err.message);
+            submitBtn.innerText = "Publier l'annonce";
+            submitBtn.disabled = false;
+          });
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    document.getElementById('searchInput').addEventListener('input', renderAds);
+    document.getElementById('cityFilter').addEventListener('change', renderAds);
+  </script>
+</body>
+</html>
