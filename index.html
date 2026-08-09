@@ -1,5 +1,4 @@
 <script type="module">
-    // Importation des services Firebase nécessaires
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -15,79 +14,23 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const auth = getAuth(app);
 
-    // Variables globales
-    let allAds = [];
+    // Fonction de formatage au cas où elle manquerait ailleurs
+    window.formatPrice = function(price) {
+        return "$" + price;
+    };
 
-    // Fonction d'écoute des annonces
     window.listenAds = function() {
         const q = query(collection(db, 'annonces'), orderBy('createdAt', 'desc'));
         onSnapshot(q, (snapshot) => {
-            allAds = [];
-            snapshot.forEach((doc) => allAds.push({ id: doc.id, ...doc.data() }));
-            if (typeof applyFilters === 'function') applyFilters();
-            else renderAds(allAds);
+            let ads = [];
+            snapshot.forEach((doc) => ads.push({ id: doc.id, ...doc.data() }));
+            if (window.renderAds) window.renderAds(ads);
         });
     };
 
-    // Fonction d'ouverture du modal de paiement
-    window.openPaymentModal = function(title, priceUSD, phone) {
-        document.getElementById('payModalTitle').innerText = title;
-        document.getElementById('payModalPrice').innerText = `Prix : ${formatPrice(priceUSD)}`;
-        
-        const waMsg = encodeURIComponent(`Bonjour, je suis intéressé par votre article "${title}" sur UniversMarket.`);
-        document.getElementById('payWhatsappBtn').href = `https://wa.me/${phone}?text=${waMsg}`;
-
-        document.getElementById('paypal-button-container').innerHTML = '';
-        
-        paypal.Buttons({
-            createOrder: (data, actions) => {
-                return actions.order.create({
-                    purchase_units: [{ amount: { value: priceUSD.toString() } }]
-                });
-            },
-            onApprove: (data, actions) => {
-                return actions.order.capture().then((details) => {
-                    alert('Paiement validé ! Le vendeur prendra contact avec vous.');
-                    closePaymentModal();
-                });
-            }
-        }).render('#paypal-button-container');
-
-        document.getElementById('paymentModal').classList.remove('hidden');
-    };
-
-    window.closePaymentModal = function() {
-        document.getElementById('paymentModal').classList.add('hidden');
-    };
-
-    window.renderAds = function(adsToDisplay) {
-        const container = document.getElementById('adsContainer');
-        const emptyMsg = document.getElementById('emptyAdsMessage');
-        if (!container) return;
-
-        if (adsToDisplay.length === 0) {
-            container.innerHTML = '';
-            if(emptyMsg) emptyMsg.classList.remove('hidden');
-            return;
-        }
-
-        if(emptyMsg) emptyMsg.classList.add('hidden');
-        
-        container.innerHTML = adsToDisplay.map(ad => `
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition">
-                <img src="${ad.image}" class="w-full h-48 object-cover">
-                <div class="p-4">
-                    <h4 class="font-bold text-gray-800">${ad.title}</h4>
-                    <p class="text-blue-600 font-bold text-lg">${formatPrice(ad.priceUSD || 0)}</p>
-                    <button onclick="openPaymentModal('${ad.title.replace(/'/g, "\\'")}', ${ad.priceUSD || 0}, '${ad.phone}')" 
-                            class="w-full bg-blue-600 text-white py-2 rounded-xl mt-3">Acheter</button>
-                </div>
-            </div>
-        `).join('');
-    };
-
-    // Initialisation
-    listenAds();
+    // On lance seulement quand la page est prête
+    window.addEventListener('DOMContentLoaded', () => {
+        if (typeof listenAds === 'function') listenAds();
+    });
 </script>
