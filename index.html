@@ -26,20 +26,31 @@
                 </div>
             </div>
             
-            <!-- Bouton Filtrer Ville / RDC -->
+            <!-- Bouton Filtrer Ville / Province -->
             <button onclick="toggleCityFilter()" id="cityFilterBtn" class="border border-white/50 bg-blue-700/30 text-white px-3 py-1.5 rounded-full text-xs font-medium hover:bg-white hover:text-blue-600 transition flex items-center gap-1">
                 <span id="selectedCityText">Toute la RDC</span> <i class="fa-solid fa-chevron-down text-[10px]"></i>
             </button>
         </div>
         
-        <!-- Menu Doulant Villes (Masqué par défaut) -->
-        <div id="cityDropdown" class="hidden max-w-6xl mx-auto mt-2 p-2 bg-white rounded-xl shadow-lg text-gray-800 flex flex-wrap gap-2 text-xs">
-            <button onclick="filterCity('Toute la RDC')" class="px-3 py-1 rounded-lg bg-blue-50 text-blue-600 font-bold">Toute la RDC</button>
-            <button onclick="filterCity('Kinshasa')" class="px-3 py-1 rounded-lg bg-gray-100 hover:bg-blue-50">Kinshasa</button>
-            <button onclick="filterCity('Lubumbashi')" class="px-3 py-1 rounded-lg bg-gray-100 hover:bg-blue-50">Lubumbashi</button>
-            <button onclick="filterCity('Goma')" class="px-3 py-1 rounded-lg bg-gray-100 hover:bg-blue-50">Goma</button>
-            <button onclick="filterCity('Kisangani')" class="px-3 py-1 rounded-lg bg-gray-100 hover:bg-blue-50">Kisangani</button>
-            <button onclick="filterCity('Bukavu')" class="px-3 py-1 rounded-lg bg-gray-100 hover:bg-blue-50">Bukavu</button>
+        <!-- Menu Déroulant des Provinces & Villes (Grille complète) -->
+        <div id="cityDropdown" class="hidden max-w-6xl mx-auto mt-2 p-3 bg-white rounded-xl shadow-lg text-gray-800 flex flex-wrap gap-2 text-xs max-h-60 overflow-y-auto">
+            <button onclick="filterCity('Toute la RDC')" class="px-3 py-1.5 rounded-lg bg-blue-600 text-white font-bold">Toute la RDC</button>
+            <button onclick="filterCity('Kinshasa')" class="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-blue-50 font-medium">Kinshasa</button>
+            <button onclick="filterCity('Lubumbashi')" class="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-blue-50 font-medium">Lubumbashi (Haut-Katanga)</button>
+            <button onclick="filterCity('Kolwezi')" class="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-blue-50 font-medium">Kolwezi (Lualaba)</button>
+            <button onclick="filterCity('Goma')" class="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-blue-50 font-medium">Goma (Nord-Kivu)</button>
+            <button onclick="filterCity('Bukavu')" class="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-blue-50 font-medium">Bukavu (Sud-Kivu)</button>
+            <button onclick="filterCity('Kisangani')" class="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-blue-50 font-medium">Kisangani (Tshopo)</button>
+            <button onclick="filterCity('Matadi')" class="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-blue-50 font-medium">Matadi (Kongo Central)</button>
+            <button onclick="filterCity('Boma')" class="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-blue-50 font-medium">Boma (Kongo Central)</button>
+            <button onclick="filterCity('Mbuji-Mayi')" class="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-blue-50 font-medium">Mbuji-Mayi (Kasaï-Oriental)</button>
+            <button onclick="filterCity('Kananga')" class="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-blue-50 font-medium">Kananga (Kasaï-Central)</button>
+            <button onclick="filterCity('Bunia')" class="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-blue-50 font-medium">Bunia (Ituri)</button>
+            <button onclick="filterCity('Kikwit')" class="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-blue-50 font-medium">Kikwit (Kwilu)</button>
+            <button onclick="filterCity('Kindu')" class="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-blue-50 font-medium">Kindu (Maniema)</button>
+            <button onclick="filterCity('Likasi')" class="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-blue-50 font-medium">Likasi (Haut-Katanga)</button>
+            <button onclick="filterCity('Mbandaka')" class="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-blue-50 font-medium">Mbandaka (Équateur)</button>
+            <button onclick="filterCity('Tshikapa')" class="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-blue-50 font-medium">Tshikapa (Kasaï)</button>
         </div>
     </header>
 
@@ -66,7 +77,6 @@
         <div class="mb-8">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-lg font-bold text-gray-800">Catégories</h3>
-                <!-- Bouton VOIR TOUT qui réinitialise -->
                 <button onclick="filterCategory('Toutes')" class="text-blue-600 text-sm font-bold hover:underline">Voir tout</button>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -109,7 +119,7 @@
     <main id="tabFavorites" class="p-6 max-w-2xl mx-auto pb-24 text-center hidden">
         <i class="fa-solid fa-heart text-5xl text-blue-500 mb-4"></i>
         <h2 class="text-2xl font-bold mb-2">Vos Favoris</h2>
-        <p class="text-gray-500">Vous n'avez enregistrer aucune annonce en favoris pour le moment.</p>
+        <p class="text-gray-500">Vous n'avez enregistré aucune annonce en favori pour le moment.</p>
     </main>
 
     <main id="tabAccount" class="p-6 max-w-2xl mx-auto pb-24 hidden">
@@ -156,8 +166,26 @@
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Ville</label>
-                        <input type="text" id="adCity" required placeholder="Ex: Kinshasa" class="w-full p-2.5 rounded-lg border border-gray-300 outline-none focus:border-blue-500">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Ville / Province</label>
+                        <select id="adCity" class="w-full p-2.5 rounded-lg border border-gray-300 outline-none focus:border-blue-500">
+                            <option value="Kinshasa">Kinshasa</option>
+                            <option value="Lubumbashi">Lubumbashi</option>
+                            <option value="Kolwezi">Kolwezi</option>
+                            <option value="Goma">Goma</option>
+                            <option value="Bukavu">Bukavu</option>
+                            <option value="Kisangani">Kisangani</option>
+                            <option value="Matadi">Matadi</option>
+                            <option value="Boma">Boma</option>
+                            <option value="Mbuji-Mayi">Mbuji-Mayi</option>
+                            <option value="Kananga">Kananga</option>
+                            <option value="Bunia">Bunia</option>
+                            <option value="Kikwit">Kikwit</option>
+                            <option value="Kindu">Kindu</option>
+                            <option value="Likasi">Likasi</option>
+                            <option value="Mbandaka">Mbandaka</option>
+                            <option value="Tshikapa">Tshikapa</option>
+                            <option value="Autre">Autre ville</option>
+                        </select>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Numéro WhatsApp</label>
