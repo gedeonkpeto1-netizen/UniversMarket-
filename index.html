@@ -6,6 +6,10 @@
     <title>UniversMarket RDC</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- SDK Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body class="bg-gray-100 font-sans">
 
@@ -72,12 +76,12 @@
 
         <!-- Recent Ads Section -->
         <div>
-            <h3 class="text-lg font-bold text-gray-800 mb-4" id="adsCountTitle">Annonces récentes (0)</h3>
+            <h3 class="text-lg font-bold text-gray-800 mb-4" id="adsCountTitle">Annonces récentes</h3>
             <div id="adsContainer" class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <!-- Les annonces s'afficheront ici -->
             </div>
             
-            <div id="emptyAdsMessage" class="text-center py-12 text-gray-500 bg-white rounded-xl shadow-sm border border-gray-100">
+            <div id="emptyAdsMessage" class="text-center py-12 text-gray-500 bg-white rounded-xl shadow-sm border border-gray-100 hidden">
                 <i class="fa-solid fa-box-open text-4xl mb-4 text-gray-300"></i>
                 <p>Aucune annonce disponible pour le moment.</p>
                 <button onclick="openModal()" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg font-medium shadow hover:bg-blue-700 transition">Soyez le premier à publier !</button>
@@ -138,7 +142,7 @@
                     <textarea id="adDescription" rows="3" placeholder="État du produit, détails..." class="w-full p-2.5 rounded-lg border border-gray-300 outline-none focus:border-blue-500"></textarea>
                 </div>
 
-                <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow hover:bg-blue-700 transition flex items-center justify-center gap-2">
+                <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow hover:bg-blue-700 transition flex items-center justify-center gap-2">
                     <i class="fa-solid fa-paper-plane"></i> Publier l'annonce
                 </button>
             </form>
@@ -161,7 +165,7 @@
             <button onclick="openModal()" class="bg-blue-600 text-white p-4 rounded-full shadow-lg absolute -top-7 left-1/2 -translate-x-1/2 border-4 border-white hover:bg-blue-700 transition">
                 <i class="fa-solid fa-plus text-xl"></i>
             </button>
-            <div class="w-16"></div> <!-- Spacer for the center button -->
+            <div class="w-16"></div>
 
             <a href="#" class="text-gray-500 hover:text-blue-600 flex flex-col items-center gap-1 transition">
                 <i class="fa-solid fa-heart text-lg"></i>
@@ -174,9 +178,22 @@
         </div>
     </nav>
 
-    <!-- JavaScript logic -->
+    <!-- JavaScript & Configuration Firebase -->
     <script>
-        let ads = JSON.parse(localStorage.getItem('universmarket_ads')) || [];
+        const firebaseConfig = {
+            apiKey: "AIzaSyDUSW3HT16j3ESHu3k4RQjR42sVRFlv5xs",
+            authDomain: "universmarket-5834b.firebaseapp.com",
+            projectId: "universmarket-5834b",
+            storageBucket: "universmarket-5834b.firebasestorage.app",
+            messagingSenderId: "921170766621",
+            appId: "1:921170766621:web:a4fdd73b9492d47a748ff4"
+        };
+
+        // Initialisation de Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let allAds = [];
 
         function openModal() {
             document.getElementById('publishModal').classList.remove('hidden');
@@ -186,8 +203,12 @@
             document.getElementById('publishModal').classList.add('hidden');
         }
 
-        function saveAd(e) {
+        async function saveAd(e) {
             e.preventDefault();
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Publication en cours...";
+
             const title = document.getElementById('adTitle').value;
             const price = document.getElementById('adPrice').value;
             const category = document.getElementById('adCategory').value;
@@ -199,34 +220,65 @@
             const defaultImg = 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=500';
 
             if (fileInput.files && fileInput.files[0]) {
+                const file = fileInput.files[0];
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    createAndSaveAd(title, price, category, city, phone, description, event.target.result);
+                    const img = new Image();
+                    img.onload = async function() {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        const maxWidth = 500;
+                        const scaleSize = maxWidth / img.width;
+                        canvas.width = (img.width > maxWidth) ? maxWidth : img.width;
+                        canvas.height = (img.width > maxWidth) ? img.height * scaleSize : img.height;
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        
+                        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
+                        await sendToFirebase(title, price, category, city, phone, description, compressedBase64);
+                    };
+                    img.src = event.target.result;
                 };
-                reader.readAsDataURL(fileInput.files[0]);
+                reader.readAsDataURL(file);
             } else {
-                createAndSaveAd(title, price, category, city, phone, description, defaultImg);
+                await sendToFirebase(title, price, category, city, phone, description, defaultImg);
             }
         }
 
-        function createAndSaveAd(title, price, category, city, phone, description, imageUrl) {
-            const newAd = {
-                id: Date.now(),
-                title,
-                price,
-                category,
-                city,
-                phone,
-                image: imageUrl,
-                description
-            };
+        async function sendToFirebase(title, price, category, city, phone, description, imageUrl) {
+            try {
+                await db.collection('annonces').add({
+                    title,
+                    price,
+                    category,
+                    city,
+                    phone,
+                    image: imageUrl,
+                    description,
+                    createdAt: new Date().getTime()
+                });
 
-            ads.unshift(newAd);
-            localStorage.setItem('universmarket_ads', JSON.stringify(ads));
-            
-            closeModal();
-            document.getElementById('addAdForm').reset();
-            renderAds(ads);
+                closeModal();
+                document.getElementById('addAdForm').reset();
+            } catch (error) {
+                alert("Erreur lors de la publication : " + error.message);
+            } finally {
+                const submitBtn = document.getElementById('submitBtn');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Publier l\'annonce';
+            }
+        }
+
+        // Écoute des annonces en temps réel
+        function listenAds() {
+            db.collection('annonces').orderBy('createdAt', 'desc').onSnapshot((snapshot) => {
+                allAds = [];
+                snapshot.forEach((doc) => {
+                    allAds.push({ id: doc.id, ...doc.data() });
+                });
+                renderAds(allAds);
+            }, (error) => {
+                console.error("Erreur de chargement : ", error);
+            });
         }
 
         function renderAds(adsToDisplay) {
@@ -268,21 +320,21 @@
 
         function filterAds() {
             const query = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = ads.filter(ad => ad.title.toLowerCase().includes(query) || ad.city.toLowerCase().includes(query));
+            const filtered = allAds.filter(ad => ad.title.toLowerCase().includes(query) || ad.city.toLowerCase().includes(query));
             renderAds(filtered);
         }
 
         function filterCategory(cat) {
             if (cat === 'Toutes') {
-                renderAds(ads);
+                renderAds(allAds);
             } else {
-                const filtered = ads.filter(ad => ad.category === cat);
+                const filtered = allAds.filter(ad => ad.category === cat);
                 renderAds(filtered);
             }
         }
 
-        // Charger les annonces au démarrage
-        renderAds(ads);
+        // Lancement au démarrage
+        listenAds();
     </script>
 
 </body>
