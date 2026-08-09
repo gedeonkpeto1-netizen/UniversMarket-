@@ -16,7 +16,7 @@
     <!-- Header / Navigation -->
     <header class="bg-blue-600 text-white p-4 shadow-md sticky top-0 z-40">
         <div class="flex justify-between items-center max-w-6xl mx-auto">
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="showTab('home')">
                 <div class="bg-white text-blue-600 p-2 rounded-lg shadow-inner">
                     <i class="fa-solid fa-bag-shopping text-xl"></i>
                 </div>
@@ -25,16 +25,30 @@
                     <p class="text-xs text-blue-100">Marketplace RDC & Direct WhatsApp</p>
                 </div>
             </div>
-            <a href="#" class="border border-white/50 text-white px-4 py-1.5 rounded-full text-sm font-medium hover:bg-white hover:text-blue-600 transition">Toute la RDC <i class="fa-solid fa-chevron-down ml-1 text-xs"></i></a>
+            
+            <!-- Bouton Filtrer Ville / RDC -->
+            <button onclick="toggleCityFilter()" id="cityFilterBtn" class="border border-white/50 bg-blue-700/30 text-white px-3 py-1.5 rounded-full text-xs font-medium hover:bg-white hover:text-blue-600 transition flex items-center gap-1">
+                <span id="selectedCityText">Toute la RDC</span> <i class="fa-solid fa-chevron-down text-[10px]"></i>
+            </button>
+        </div>
+        
+        <!-- Menu Doulant Villes (Masqué par défaut) -->
+        <div id="cityDropdown" class="hidden max-w-6xl mx-auto mt-2 p-2 bg-white rounded-xl shadow-lg text-gray-800 flex flex-wrap gap-2 text-xs">
+            <button onclick="filterCity('Toute la RDC')" class="px-3 py-1 rounded-lg bg-blue-50 text-blue-600 font-bold">Toute la RDC</button>
+            <button onclick="filterCity('Kinshasa')" class="px-3 py-1 rounded-lg bg-gray-100 hover:bg-blue-50">Kinshasa</button>
+            <button onclick="filterCity('Lubumbashi')" class="px-3 py-1 rounded-lg bg-gray-100 hover:bg-blue-50">Lubumbashi</button>
+            <button onclick="filterCity('Goma')" class="px-3 py-1 rounded-lg bg-gray-100 hover:bg-blue-50">Goma</button>
+            <button onclick="filterCity('Kisangani')" class="px-3 py-1 rounded-lg bg-gray-100 hover:bg-blue-50">Kisangani</button>
+            <button onclick="filterCity('Bukavu')" class="px-3 py-1 rounded-lg bg-gray-100 hover:bg-blue-50">Bukavu</button>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="p-4 md:p-6 max-w-6xl mx-auto pb-24">
+    <!-- Content: Page Accueil -->
+    <main id="tabHome" class="p-4 md:p-6 max-w-6xl mx-auto pb-24">
         
         <!-- Search Bar -->
         <div class="relative mb-6">
-            <input type="text" id="searchInput" onkeyup="filterAds()" placeholder="Rechercher un produit, téléphone..." class="w-full p-3 pl-12 rounded-xl border border-gray-200 shadow-sm focus:ring-2 focus:ring-blue-200 outline-none transition">
+            <input type="text" id="searchInput" onkeyup="filterAds()" placeholder="Rechercher un produit, téléphone, ville..." class="w-full p-3 pl-12 rounded-xl border border-gray-200 shadow-sm focus:ring-2 focus:ring-blue-200 outline-none transition">
             <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
         </div>
 
@@ -52,22 +66,23 @@
         <div class="mb-8">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-lg font-bold text-gray-800">Catégories</h3>
-                <a href="#" class="text-blue-600 text-sm font-medium">Voir tout</a>
+                <!-- Bouton VOIR TOUT qui réinitialise -->
+                <button onclick="filterCategory('Toutes')" class="text-blue-600 text-sm font-bold hover:underline">Voir tout</button>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div onclick="filterCategory('Toutes')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 text-center flex flex-col items-center hover:shadow-md transition cursor-pointer">
-                    <div class="text-blue-500 bg-blue-50 p-3 rounded-full mb-3"><i class="fa-solid fa-border-all text-xl"></i></div>
-                    <span class="font-medium text-sm text-gray-700">Toutes</span>
+                <div onclick="filterCategory('Toutes')" id="catBtnToutes" class="cat-card bg-blue-600 text-white p-4 rounded-xl shadow-sm border border-blue-600 text-center flex flex-col items-center hover:shadow-md transition cursor-pointer">
+                    <div class="text-blue-600 bg-white p-3 rounded-full mb-3"><i class="fa-solid fa-border-all text-xl"></i></div>
+                    <span class="font-bold text-sm">Toutes</span>
                 </div>
-                <div onclick="filterCategory('Téléphones')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 text-center flex flex-col items-center hover:shadow-md transition cursor-pointer">
+                <div onclick="filterCategory('Téléphones')" id="catBtnTéléphones" class="cat-card bg-white p-4 rounded-xl shadow-sm border border-gray-100 text-center flex flex-col items-center hover:shadow-md transition cursor-pointer">
                     <div class="text-blue-500 bg-blue-50 p-3 rounded-full mb-3"><i class="fa-solid fa-mobile-screen text-xl"></i></div>
                     <span class="font-medium text-sm text-gray-700">Téléphones</span>
                 </div>
-                <div onclick="filterCategory('Électronique')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 text-center flex flex-col items-center hover:shadow-md transition cursor-pointer">
+                <div onclick="filterCategory('Électronique')" id="catBtnÉlectronique" class="cat-card bg-white p-4 rounded-xl shadow-sm border border-gray-100 text-center flex flex-col items-center hover:shadow-md transition cursor-pointer">
                     <div class="text-blue-500 bg-blue-50 p-3 rounded-full mb-3"><i class="fa-solid fa-laptop text-xl"></i></div>
                     <span class="font-medium text-sm text-gray-700">Électronique</span>
                 </div>
-                <div onclick="filterCategory('Meubles')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 text-center flex flex-col items-center hover:shadow-md transition cursor-pointer">
+                <div onclick="filterCategory('Meubles')" id="catBtnMeubles" class="cat-card bg-white p-4 rounded-xl shadow-sm border border-gray-100 text-center flex flex-col items-center hover:shadow-md transition cursor-pointer">
                     <div class="text-blue-500 bg-blue-50 p-3 rounded-full mb-3"><i class="fa-solid fa-couch text-xl"></i></div>
                     <span class="font-medium text-sm text-gray-700">Meubles</span>
                 </div>
@@ -88,6 +103,24 @@
             </div>
         </div>
 
+    </main>
+
+    <!-- Section Autres Onglets (Favoris & Compte) -->
+    <main id="tabFavorites" class="p-6 max-w-2xl mx-auto pb-24 text-center hidden">
+        <i class="fa-solid fa-heart text-5xl text-blue-500 mb-4"></i>
+        <h2 class="text-2xl font-bold mb-2">Vos Favoris</h2>
+        <p class="text-gray-500">Vous n'avez enregistrer aucune annonce en favoris pour le moment.</p>
+    </main>
+
+    <main id="tabAccount" class="p-6 max-w-2xl mx-auto pb-24 hidden">
+        <div class="bg-white p-6 rounded-2xl shadow border border-gray-100 text-center">
+            <div class="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-4 font-bold">
+                U
+            </div>
+            <h2 class="text-xl font-bold">Bienvenue sur UniversMarket</h2>
+            <p class="text-gray-500 text-sm mb-6">Achetez et vendez facilement dans toute la RDC.</p>
+            <button onclick="openModal()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold"><i class="fa-solid fa-plus mr-2"></i> Publier une annonce</button>
+        </div>
     </main>
 
     <!-- Modal Formulaire d'ajout d'annonce -->
@@ -152,14 +185,14 @@
     <!-- Bottom Navigation -->
     <nav class="fixed bottom-0 left-0 right-0 bg-white p-3 border-t border-gray-100 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] z-40">
         <div class="flex justify-around items-center max-w-lg mx-auto relative">
-            <a href="#" class="text-blue-600 flex flex-col items-center gap-1">
+            <button onclick="showTab('home')" id="navHome" class="nav-btn text-blue-600 flex flex-col items-center gap-1">
                 <i class="fa-solid fa-home text-lg"></i>
                 <span class="text-xs font-medium">Accueil</span>
-            </a>
-            <a href="#" class="text-gray-500 hover:text-blue-600 flex flex-col items-center gap-1 transition">
+            </button>
+            <button onclick="focusSearch()" id="navSearch" class="nav-btn text-gray-500 hover:text-blue-600 flex flex-col items-center gap-1 transition">
                 <i class="fa-solid fa-search text-lg"></i>
                 <span class="text-xs font-medium">Rechercher</span>
-            </a>
+            </button>
             
             <!-- Publish Button (Center) -->
             <button onclick="openModal()" class="bg-blue-600 text-white p-4 rounded-full shadow-lg absolute -top-7 left-1/2 -translate-x-1/2 border-4 border-white hover:bg-blue-700 transition">
@@ -167,14 +200,14 @@
             </button>
             <div class="w-16"></div>
 
-            <a href="#" class="text-gray-500 hover:text-blue-600 flex flex-col items-center gap-1 transition">
+            <button onclick="showTab('favorites')" id="navFav" class="nav-btn text-gray-500 hover:text-blue-600 flex flex-col items-center gap-1 transition">
                 <i class="fa-solid fa-heart text-lg"></i>
                 <span class="text-xs font-medium">Favoris</span>
-            </a>
-            <a href="#" class="text-gray-500 hover:text-blue-600 flex flex-col items-center gap-1 transition">
+            </button>
+            <button onclick="showTab('account')" id="navAccount" class="nav-btn text-gray-500 hover:text-blue-600 flex flex-col items-center gap-1 transition">
                 <i class="fa-solid fa-user text-lg"></i>
                 <span class="text-xs font-medium">Compte</span>
-            </a>
+            </button>
         </div>
     </nav>
 
@@ -194,6 +227,8 @@
         const db = firebase.firestore();
 
         let allAds = [];
+        let selectedCategory = 'Toutes';
+        let selectedCity = 'Toute la RDC';
 
         function openModal() {
             document.getElementById('publishModal').classList.remove('hidden');
@@ -201,6 +236,94 @@
 
         function closeModal() {
             document.getElementById('publishModal').classList.add('hidden');
+        }
+
+        // Navigation entre onglets bas
+        function showTab(tab) {
+            document.getElementById('tabHome').classList.add('hidden');
+            document.getElementById('tabFavorites').classList.add('hidden');
+            document.getElementById('tabAccount').classList.add('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.replace('text-blue-600', 'text-gray-500'));
+
+            if (tab === 'home') {
+                document.getElementById('tabHome').classList.remove('hidden');
+                document.getElementById('navHome').classList.replace('text-gray-500', 'text-blue-600');
+            } else if (tab === 'favorites') {
+                document.getElementById('tabFavorites').classList.remove('hidden');
+                document.getElementById('navFav').classList.replace('text-gray-500', 'text-blue-600');
+            } else if (tab === 'account') {
+                document.getElementById('tabAccount').classList.remove('hidden');
+                document.getElementById('navAccount').classList.replace('text-gray-500', 'text-blue-600');
+            }
+        }
+
+        function focusSearch() {
+            showTab('home');
+            document.getElementById('searchInput').focus();
+        }
+
+        function toggleCityFilter() {
+            document.getElementById('cityDropdown').classList.toggle('hidden');
+        }
+
+        function filterCity(city) {
+            selectedCity = city;
+            document.getElementById('selectedCityText').innerText = city;
+            document.getElementById('cityDropdown').classList.add('hidden');
+            applyFilters();
+        }
+
+        function filterCategory(cat) {
+            selectedCategory = cat;
+            
+            // Mise à jour de l'apparence des boutons de catégorie
+            document.querySelectorAll('.cat-card').forEach(card => {
+                card.className = "cat-card bg-white p-4 rounded-xl shadow-sm border border-gray-100 text-center flex flex-col items-center hover:shadow-md transition cursor-pointer";
+                const iconBox = card.querySelector('div');
+                iconBox.className = "text-blue-500 bg-blue-50 p-3 rounded-full mb-3";
+                const textSpan = card.querySelector('span');
+                textSpan.className = "font-medium text-sm text-gray-700";
+            });
+
+            const activeCard = document.getElementById(`catBtn${cat}`);
+            if (activeCard) {
+                activeCard.className = "cat-card bg-blue-600 text-white p-4 rounded-xl shadow-sm border border-blue-600 text-center flex flex-col items-center hover:shadow-md transition cursor-pointer";
+                const iconBox = activeCard.querySelector('div');
+                iconBox.className = "text-blue-600 bg-white p-3 rounded-full mb-3";
+                const textSpan = activeCard.querySelector('span');
+                textSpan.className = "font-bold text-sm text-white";
+            }
+
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            
+            let filtered = allAds;
+
+            if (selectedCategory !== 'Toutes') {
+                filtered = filtered.filter(ad => ad.category === selectedCategory);
+            }
+
+            if (selectedCity !== 'Toute la RDC') {
+                filtered = filtered.filter(ad => ad.city.toLowerCase().includes(selectedCity.toLowerCase()));
+            }
+
+            if (query) {
+                filtered = filtered.filter(ad => 
+                    ad.title.toLowerCase().includes(query) || 
+                    ad.description.toLowerCase().includes(query) ||
+                    ad.city.toLowerCase().includes(query)
+                );
+            }
+
+            renderAds(filtered);
+        }
+
+        function filterAds() {
+            applyFilters();
         }
 
         async function saveAd(e) {
@@ -275,7 +398,7 @@
                 snapshot.forEach((doc) => {
                     allAds.push({ id: doc.id, ...doc.data() });
                 });
-                renderAds(allAds);
+                applyFilters();
             }, (error) => {
                 console.error("Erreur de chargement : ", error);
             });
@@ -316,21 +439,6 @@
                     </div>
                 </div>
             `).join('');
-        }
-
-        function filterAds() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = allAds.filter(ad => ad.title.toLowerCase().includes(query) || ad.city.toLowerCase().includes(query));
-            renderAds(filtered);
-        }
-
-        function filterCategory(cat) {
-            if (cat === 'Toutes') {
-                renderAds(allAds);
-            } else {
-                const filtered = allAds.filter(ad => ad.category === cat);
-                renderAds(filtered);
-            }
         }
 
         // Lancement au démarrage
