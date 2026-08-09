@@ -4,27 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UniversMarket</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="bg-gray-100">
 
-    <!-- Header -->
-    <header class="bg-blue-600 p-4 text-white text-center font-bold text-xl">
-        UniversMarket
+    <!-- Header / Navigation -->
+    <header class="bg-blue-600 text-white p-4 flex justify-between items-center shadow-md">
+        <h1 class="font-bold text-xl">UniversMarket</h1>
+        <div id="authArea"></div>
     </header>
 
-    <!-- Conteneur des annonces -->
-    <main class="p-4">
-        <div id="adsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <!-- Les annonces s'afficheront ici -->
+    <!-- Conteneur principal -->
+    <main class="p-4 max-w-5xl mx-auto">
+        <div id="adsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Les annonces apparaîtront ici dynamiquement -->
         </div>
-        <div id="emptyAdsMessage" class="hidden text-center text-gray-500 mt-10">
-            Aucune annonce pour le moment.
+        
+        <!-- Message si vide -->
+        <div id="emptyAdsMessage" class="hidden text-center text-gray-500 mt-20">
+            <i class="fa-solid fa-box-open text-4xl mb-4"></i>
+            <p>Aucune annonce pour le moment.</p>
         </div>
     </main>
+
+    <!-- Modal de paiement (caché par défaut) -->
+    <div id="paymentModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white p-6 rounded-2xl w-full max-w-sm">
+            <h3 id="payModalTitle" class="font-bold text-lg mb-2"></h3>
+            <p id="payModalPrice" class="text-blue-600 font-bold mb-4"></p>
+            <div id="paypal-button-container" class="mb-4"></div>
+            <a id="payWhatsappBtn" href="#" target="_blank" class="block text-center bg-green-500 text-white py-2 rounded-xl mb-2">Contacter sur WhatsApp</a>
+            <button onclick="closePaymentModal()" class="w-full text-gray-400">Annuler</button>
+        </div>
+    </div>
 
     <!-- Script Firebase & Logique -->
     <script type="module">
@@ -43,28 +56,41 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Rendu des annonces
-        window.renderAds = function(ads) {
+        // Fonctions globales pour le HTML
+        window.closePaymentModal = () => document.getElementById('paymentModal').classList.add('hidden');
+        
+        window.openPaymentModal = (title, priceUSD, phone) => {
+            document.getElementById('payModalTitle').innerText = title;
+            document.getElementById('payModalPrice').innerText = `Prix : $${priceUSD}`;
+            document.getElementById('payWhatsappBtn').href = `https://wa.me/${phone}?text=Bonjour, je suis intéressé par ${title}`;
+            document.getElementById('paymentModal').classList.remove('hidden');
+        };
+
+        // Rendu
+        const renderAds = (ads) => {
             const container = document.getElementById('adsContainer');
             const emptyMsg = document.getElementById('emptyAdsMessage');
             
             if (ads.length === 0) {
                 emptyMsg.classList.remove('hidden');
                 container.innerHTML = '';
-                return;
+            } else {
+                emptyMsg.classList.add('hidden');
+                container.innerHTML = ads.map(ad => `
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition">
+                        <img src="${ad.image || 'https://via.placeholder.com/300'}" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h4 class="font-bold text-gray-800">${ad.title}</h4>
+                            <p class="text-blue-600 font-bold text-lg mb-3">$${ad.priceUSD || 0}</p>
+                            <button onclick="openPaymentModal('${ad.title.replace(/'/g, "\\'")}', ${ad.priceUSD || 0}, '${ad.phone}')" 
+                                    class="w-full bg-blue-600 text-white py-2 rounded-xl">Acheter</button>
+                        </div>
+                    </div>
+                `).join('');
             }
-
-            emptyMsg.classList.add('hidden');
-            container.innerHTML = ads.map(ad => `
-                <div class="bg-white p-4 rounded-xl shadow-sm">
-                    <img src="${ad.image || ''}" class="w-full h-40 object-cover rounded-lg mb-2">
-                    <h4 class="font-bold text-lg">${ad.title || 'Sans titre'}</h4>
-                    <p class="text-blue-600 font-bold">$${ad.priceUSD || 0}</p>
-                </div>
-            `).join('');
         };
 
-        // Chargement des données
+        // Chargement temps réel
         const q = query(collection(db, 'annonces'), orderBy('createdAt', 'desc'));
         onSnapshot(q, (snapshot) => {
             let ads = [];
@@ -74,4 +100,3 @@
     </script>
 </body>
 </html>
-
