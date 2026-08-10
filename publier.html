@@ -23,6 +23,15 @@
                 <input type="text" id="title" placeholder="Ex: Spark 10" class="w-full p-3 border rounded-xl text-sm focus:outline-none focus:border-blue-600" required>
             </div>
             <div>
+                <label class="block text-xs font-bold text-gray-600 mb-1">Catégorie</label>
+                <select id="category" class="w-full p-3 border rounded-xl text-sm bg-white focus:outline-none focus:border-blue-600" required>
+                    <option value="" disabled selected>Choisissez une catégorie</option>
+                    <option value="Telephones">Téléphones</option>
+                    <option value="Electro">Électro</option>
+                    <option value="Meubles">Meubles</option>
+                </select>
+            </div>
+            <div>
                 <label class="block text-xs font-bold text-gray-600 mb-1">Prix en USD ($)</label>
                 <input type="number" id="price" placeholder="Ex: 120" class="w-full p-3 border rounded-xl text-sm focus:outline-none focus:border-blue-600" required>
             </div>
@@ -38,7 +47,7 @@
         </form>
     </main>
 
-    <!-- Script de redimensionnement et d'envoi -->
+    <!-- Script d'envoi vers Firebase -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -55,7 +64,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Fonction pour compresser l'image et la convertir en format léger
         const resizeImageAndConvertToBase64 = (file) => {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -63,7 +71,7 @@
                     const img = new Image();
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
-                        const MAX_WIDTH = 400; // Taille réduite pour que ça passe dans Firebase
+                        const MAX_WIDTH = 400;
                         const scaleSize = MAX_WIDTH / img.width;
                         canvas.width = MAX_WIDTH;
                         canvas.height = img.height * scaleSize;
@@ -71,7 +79,6 @@
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-                        // Compression en JPEG qualité 0.7
                         const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
                         resolve(dataUrl);
                     };
@@ -101,6 +108,7 @@
                 submitBtn.innerText = "Publication en cours...";
                 await addDoc(collection(db, 'annonces'), {
                     title: document.getElementById('title').value,
+                    category: document.getElementById('category').value,
                     priceUSD: Number(document.getElementById('price').value),
                     phone: document.getElementById('phone').value,
                     image: imageBase64,
