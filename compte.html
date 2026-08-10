@@ -1,16 +1,21 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" id="htmlRoot">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mon Compte - UniversMarket</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
 </head>
-<body class="bg-gray-100 pb-24">
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 pb-24 transition-colors duration-300">
 
     <!-- Header -->
-    <header class="bg-blue-600 p-4 text-white shadow-md">
+    <header class="bg-blue-600 dark:bg-blue-900 p-4 text-white shadow-md transition-colors duration-300">
         <div class="flex items-center">
             <a href="index.html" class="mr-3 text-lg"><i class="fa-solid fa-arrow-left"></i></a>
             <h1 class="font-bold text-lg">Mon Compte & Gestion</h1>
@@ -20,57 +25,71 @@
     <main class="p-4 max-w-lg mx-auto space-y-5">
         
         <!-- Profil Card -->
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center space-x-4">
-            <div class="bg-blue-100 text-blue-600 w-14 h-14 rounded-full flex items-center justify-center text-2xl font-bold">
+        <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center space-x-4 transition-colors duration-300">
+            <div class="bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 w-14 h-14 rounded-full flex items-center justify-center text-2xl font-bold">
                 <i class="fa-solid fa-user-shield"></i>
             </div>
             <div>
-                <h2 class="font-bold text-gray-800 text-base">Vendeur UniversMarket</h2>
-                <p class="text-xs text-gray-500">République Démocratique du Congo 🇨🇩</p>
-                <span class="inline-block mt-1 text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">Compte Actif</span>
+                <h2 class="font-bold text-gray-800 dark:text-white text-base">Vendeur UniversMarket</h2>
+                <p class="text-xs text-gray-500 dark:text-gray-400">République Démocratique du Congo 🇨🇩</p>
+                <span class="inline-block mt-1 text-[10px] bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold">Compte Actif</span>
             </div>
         </div>
 
         <!-- Statistiques rapides -->
         <div class="grid grid-cols-2 gap-3">
-            <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 text-center">
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 text-center transition-colors duration-300">
                 <p class="text-xs text-gray-400 font-medium">Annonces en ligne</p>
-                <p id="totalAdsCount" class="text-xl font-extrabold text-blue-600 mt-1">-</p>
+                <p id="totalAdsCount" class="text-xl font-extrabold text-blue-600 dark:text-blue-400 mt-1">-</p>
             </div>
-            <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 text-center">
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 text-center transition-colors duration-300">
                 <p class="text-xs text-gray-400 font-medium">Plateforme</p>
-                <p class="text-xs font-extrabold text-gray-800 mt-2">Firebase Cloud</p>
+                <p class="text-xs font-extrabold text-gray-800 dark:text-white mt-2">Firebase Cloud</p>
             </div>
+        </div>
+
+        <!-- Paramètre : Mode Sombre -->
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between transition-colors duration-300">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-xl bg-purple-50 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 flex items-center justify-center text-sm">
+                    <i class="fa-solid fa-moon"></i>
+                </div>
+                <span class="text-xs font-bold text-gray-700 dark:text-gray-200">Mode Sombre (Dark Mode)</span>
+            </div>
+            <!-- Interrupteur -->
+            <button id="darkModeToggle" class="w-12 h-6 bg-gray-300 dark:bg-blue-600 rounded-full relative p-1 transition-colors duration-300 focus:outline-none">
+                <div id="toggleCircle" class="w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 translate-x-0 dark:translate-x-6"></div>
+            </button>
         </div>
 
         <!-- Section de gestion des annonces -->
         <div>
             <div class="flex justify-between items-center mb-3">
-                <h3 class="font-bold text-gray-800 text-sm">Gérer mes annonces publiées</h3>
+                <h3 class="font-bold text-gray-800 dark:text-gray-200 text-sm">Gérer mes annonces publiées</h3>
                 <span class="text-[10px] text-gray-400">Suppression instantanée</span>
             </div>
             <div id="myAdsList" class="space-y-3">
-                <p class="text-center text-gray-400 text-xs py-6 bg-white rounded-2xl">Chargement de vos annonces...</p>
+                <p class="text-center text-gray-400 text-xs py-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm">Chargement de vos annonces...</p>
             </div>
         </div>
 
         <!-- Options et Aide -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden divide-y divide-gray-100">
-            <a href="publier.html" class="p-4 flex items-center justify-between hover:bg-gray-50 transition">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden divide-y divide-gray-100 dark:divide-gray-700 transition-colors duration-300">
+            <a href="publier.html" class="p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
                 <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-sm">
+                    <div class="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm">
                         <i class="fa-solid fa-plus"></i>
                     </div>
-                    <span class="text-xs font-bold text-gray-700">Publier une nouvelle annonce</span>
+                    <span class="text-xs font-bold text-gray-700 dark:text-gray-200">Publier une nouvelle annonce</span>
                 </div>
                 <i class="fa-solid fa-chevron-right text-gray-300 text-xs"></i>
             </a>
-            <a href="https://wa.me/243820000000?text=Bonjour,%20j'ai%20besoin%20d'aide%20sur%20UniversMarket" target="_blank" class="p-4 flex items-center justify-between hover:bg-gray-50 transition">
+            <a href="https://wa.me/243820000000?text=Bonjour,%20j'ai%20besoin%20d'aide%20sur%20UniversMarket" target="_blank" class="p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
                 <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm">
+                    <div class="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-sm">
                         <i class="fa-brands fa-whatsapp"></i>
                     </div>
-                    <span class="text-xs font-bold text-gray-700">Contacter le Support Technique</span>
+                    <span class="text-xs font-bold text-gray-700 dark:text-gray-200">Contacter le Support Technique</span>
                 </div>
                 <i class="fa-solid fa-chevron-right text-gray-300 text-xs"></i>
             </a>
@@ -79,29 +98,49 @@
     </main>
 
     <!-- Barre de navigation du bas -->
-    <nav class="fixed bottom-0 w-full bg-white border-t border-gray-200 flex justify-around items-center py-2 text-gray-400 z-50 shadow-lg">
-        <a href="index.html" class="flex flex-col items-center hover:text-gray-600">
+    <nav class="fixed bottom-0 w-full bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex justify-around items-center py-2 text-gray-400 z-50 shadow-lg transition-colors duration-300">
+        <a href="index.html" class="flex flex-col items-center hover:text-gray-600 dark:hover:text-gray-200">
             <i class="fa-solid fa-house text-lg"></i>
             <span class="text-[10px] mt-1 font-medium">Accueil</span>
         </a>
-        <a href="rechercher.html" class="flex flex-col items-center hover:text-gray-600">
+        <a href="rechercher.html" class="flex flex-col items-center hover:text-gray-600 dark:hover:text-gray-200">
             <i class="fa-solid fa-magnifying-glass text-lg"></i>
             <span class="text-[10px] mt-1 font-medium">Rechercher</span>
         </a>
         <a href="publier.html" class="bg-blue-600 text-white rounded-full w-12 h-12 flex items-center justify-center -mt-5 shadow-lg">
             <i class="fa-solid fa-plus text-xl"></i>
         </a>
-        <a href="favoris.html" class="flex flex-col items-center hover:text-gray-600">
+        <a href="favoris.html" class="flex flex-col items-center hover:text-gray-600 dark:hover:text-gray-200">
             <i class="fa-solid fa-heart text-lg"></i>
             <span class="text-[10px] mt-1 font-medium">Favoris</span>
         </a>
-        <a href="compte.html" class="flex flex-col items-center text-blue-600">
+        <a href="compte.html" class="flex flex-col items-center text-blue-600 dark:text-blue-400">
             <i class="fa-solid fa-user text-lg"></i>
             <span class="text-[10px] mt-1 font-medium">Compte</span>
         </a>
     </nav>
 
-    <!-- Script de gestion de compte et suppression d'annonces -->
+    <!-- Script Global Mode Sombre + Firebase -->
+    <script>
+        // Gestion du Dark Mode
+        const htmlRoot = document.getElementById('htmlRoot');
+        const darkModeToggle = document.getElementById('darkModeToggle');
+
+        // Charger l'état enregistré
+        if (localStorage.getItem('theme') === 'dark') {
+            htmlRoot.classList.add('dark');
+        }
+
+        darkModeToggle.addEventListener('click', () => {
+            htmlRoot.classList.toggle('dark');
+            if (htmlRoot.classList.contains('dark')) {
+                localStorage.setItem('theme', 'dark');
+            } else {
+                localStorage.setItem('theme', 'light');
+            }
+        });
+    </script>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -134,21 +173,21 @@
                 totalAdsCount.innerText = ads.length;
 
                 if (ads.length === 0) {
-                    myAdsList.innerHTML = `<p class="text-center text-gray-400 text-xs py-6 bg-white rounded-2xl shadow-sm">Vous n'avez publié aucune annonce pour le moment.</p>`;
+                    myAdsList.innerHTML = `<p class="text-center text-gray-400 text-xs py-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm">Vous n'avez publié aucune annonce pour le moment.</p>`;
                     return;
                 }
 
                 myAdsList.innerHTML = '';
                 ads.forEach(ad => {
                     const itemCard = `
-                        <div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between space-x-3">
+                        <div class="bg-white dark:bg-gray-800 p-3 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between space-x-3 transition-colors duration-300">
                             <img src="${ad.image || 'https://via.placeholder.com/150'}" alt="${ad.title}" class="w-16 h-16 object-cover rounded-xl flex-shrink-0">
                             <div class="flex-grow min-w-0">
-                                <h4 class="font-bold text-gray-800 text-xs truncate">${ad.title}</h4>
-                                <p class="text-blue-600 font-extrabold text-xs mt-0.5">$${ad.priceUSD}</p>
-                                <span class="text-[9px] text-gray-400 bg-gray-50 px-2 py-0.5 rounded-md mt-1 inline-block">${ad.category || 'Général'}</span>
+                                <h4 class="font-bold text-gray-800 dark:text-white text-xs truncate">${ad.title}</h4>
+                                <p class="text-blue-600 dark:text-blue-400 font-extrabold text-xs mt-0.5">$${ad.priceUSD}</p>
+                                <span class="text-[9px] text-gray-400 bg-gray-50 dark:bg-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-md mt-1 inline-block">${ad.category || 'Général'}</span>
                             </div>
-                            <button onclick="deleteAd('${ad.id}')" class="bg-red-50 text-red-600 hover:bg-red-100 p-2.5 rounded-xl text-xs transition flex-shrink-0" title="Supprimer l'annonce">
+                            <button onclick="deleteAd('${ad.id}')" class="bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-100 p-2.5 rounded-xl text-xs transition flex-shrink-0" title="Supprimer l'annonce">
                                 <i class="fa-solid fa-trash-can"></i>
                             </button>
                         </div>
@@ -158,17 +197,16 @@
 
             } catch (error) {
                 console.error("Erreur:", error);
-                myAdsList.innerHTML = `<p class="text-center text-red-500 text-xs py-6 bg-white rounded-2xl">Erreur de chargement de vos annonces.</p>`;
+                myAdsList.innerHTML = `<p class="text-center text-red-500 text-xs py-6 bg-white dark:bg-gray-800 rounded-2xl">Erreur de chargement de vos annonces.</p>`;
             }
         }
 
-        // Fonction pour supprimer une annonce
         window.deleteAd = async function(id) {
             if (confirm("Voulez-vous vraiment supprimer cette annonce ?")) {
                 try {
                     await deleteDoc(doc(db, 'annonces', id));
                     alert("Annonce supprimée avec succès !");
-                    loadAccountData(); // Recharger la liste
+                    loadAccountData();
                 } catch (error) {
                     console.error("Erreur lors de la suppression:", error);
                     alert("Erreur lors de la suppression de l'annonce.");
@@ -176,6 +214,7 @@
             }
         }
 
+        loadCommand = loadAccountData();
         loadAccountData();
     </script>
 </body>
