@@ -3,50 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UniversMarket</title>
+    <title>UniversMarket - RDC</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome pour les icônes -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="bg-gray-100 pb-24">
 
     <!-- Header -->
     <header class="bg-blue-600 p-4 text-white shadow-lg">
-        <h1 class="font-bold text-xl">UniversMarket</h1>
-        <input type="text" placeholder="Rechercher..." class="w-full mt-3 p-2 rounded-lg text-gray-800">
+        <div class="flex items-center justify-between mb-3">
+            <h1 class="font-bold text-xl">UniversMarket <span class="text-xs bg-white text-blue-600 px-1.5 py-0.5 rounded font-semibold">RDC</span></h1>
+        </div>
+        <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </span>
+            <input type="text" placeholder="Rechercher un produit, téléphone..." class="w-full pl-10 pr-4 py-2 rounded-xl text-gray-800 text-sm focus:outline-none shadow-inner">
+        </div>
     </header>
 
-    <!-- Section Annonces -->
-    <main class="p-4">
-        <div id="adsContainer" class="grid grid-cols-1 gap-4"></div>
-        <div id="emptyAdsMessage" class="hidden text-center py-10 text-gray-500">Aucune annonce.</div>
+    <!-- Section WhatsApp Direct & Publication -->
+    <div class="p-4">
+        <div class="bg-gradient-to-r from-blue-700 to-blue-600 text-white p-4 rounded-2xl shadow-md flex justify-between items-center">
+            <div>
+                <p class="text-[10px] uppercase tracking-wider opacity-80 font-bold">Achat & Vente RDC</p>
+                <h2 class="font-bold text-lg">WhatsApp Direct</h2>
+                <p class="text-xs opacity-90">Contactez directement les vendeurs</p>
+            </div>
+            <a href="publier.html" class="bg-white text-blue-700 px-4 py-2 rounded-xl font-bold text-sm shadow hover:bg-gray-50 transition">+ Publier</a>
+        </div>
+    </div>
+
+    <!-- Catégories -->
+    <div class="px-4 py-1">
+        <div class="flex justify-between items-center mb-3">
+            <h3 class="font-bold text-gray-800">Catégories</h3>
+            <a href="#" class="text-blue-600 text-xs font-semibold">Voir tout</a>
+        </div>
+        <div class="grid grid-cols-4 gap-3">
+            <div class="bg-white p-3 rounded-2xl text-center shadow-sm border border-gray-100">
+                <i class="fa-solid fa-border-all text-blue-600 text-lg mb-1"></i>
+                <p class="text-[11px] text-gray-700 font-medium">Toutes</p>
+            </div>
+            <div class="bg-white p-3 rounded-2xl text-center shadow-sm border border-gray-100">
+                <i class="fa-solid fa-mobile text-blue-600 text-lg mb-1"></i>
+                <p class="text-[11px] text-gray-700 font-medium">Téléphones</p>
+            </div>
+            <div class="bg-white p-3 rounded-2xl text-center shadow-sm border border-gray-100">
+                <i class="fa-solid fa-tv text-blue-600 text-lg mb-1"></i>
+                <p class="text-[11px] text-gray-700 font-medium">Électro</p>
+            </div>
+            <div class="bg-white p-3 rounded-2xl text-center shadow-sm border border-gray-100">
+                <i class="fa-solid fa-couch text-blue-600 text-lg mb-1"></i>
+                <p class="text-[11px] text-gray-700 font-medium">Meubles</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Annonces récentes -->
+    <main class="px-4 mt-4">
+        <h3 class="font-bold text-gray-800 mb-3">Annonces récentes</h3>
+        
+        <!-- Le conteneur où les annonces de Firebase vont s'afficher -->
+        <div id="adsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Chargement en cours -->
+        </div>
+
+        <!-- Message si aucune annonce -->
+        <div id="emptyAdsMessage" class="hidden text-center py-12 text-gray-400 bg-white rounded-2xl shadow-sm border border-gray-100 mt-2">
+            <i class="fa-solid fa-box-open text-3xl mb-2"></i>
+            <p class="text-sm">Aucune annonce disponible.</p>
+        </div>
     </main>
 
-    <!-- Navigation -->
-    <nav class="fixed bottom-0 w-full bg-white border-t flex justify-around p-3 text-gray-500 z-50">
-        <a href="index.html" class="text-blue-600 flex flex-col items-center"><i class="fa-solid fa-house"></i><span class="text-[10px]">Accueil</span></a>
-        <a href="rechercher.html" class="flex flex-col items-center"><i class="fa-solid fa-magnifying-glass"></i><span class="text-[10px]">Rechercher</span></a>
-        <a href="publier.html" class="bg-blue-600 text-white rounded-full p-4 -mt-8 shadow-lg"><i class="fa-solid fa-plus"></i></a>
-        <a href="favoris.html" class="flex flex-col items-center"><i class="fa-solid fa-heart"></i><span class="text-[10px]">Favoris</span></a>
-        <a href="compte.html" class="flex flex-col items-center"><i class="fa-solid fa-user"></i><span class="text-[10px]">Compte</span></a>
+    <!-- Barre de navigation en bas -->
+    <nav class="fixed bottom-0 w-full bg-white border-t border-gray-200 flex justify-around items-center py-2 text-gray-400 z-50 shadow-lg">
+        <a href="index.html" class="flex flex-col items-center text-blue-600">
+            <i class="fa-solid fa-house text-lg"></i>
+            <span class="text-[10px] mt-1 font-medium">Accueil</span>
+        </a>
+        <a href="rechercher.html" class="flex flex-col items-center hover:text-gray-600">
+            <i class="fa-solid fa-magnifying-glass text-lg"></i>
+            <span class="text-[10px] mt-1 font-medium">Rechercher</span>
+        </a>
+        <a href="publier.html" class="bg-blue-600 text-white rounded-full w-12 h-12 flex items-center justify-center -mt-5 shadow-lg hover:bg-blue-700 transition">
+            <i class="fa-solid fa-plus text-xl"></i>
+        </a>
+        <a href="favoris.html" class="flex flex-col items-center hover:text-gray-600">
+            <i class="fa-solid fa-heart text-lg"></i>
+            <span class="text-[10px] mt-1 font-medium">Favoris</span>
+        </a>
+        <a href="compte.html" class="flex flex-col items-center hover:text-gray-600">
+            <i class="fa-solid fa-user text-lg"></i>
+            <span class="text-[10px] mt-1 font-medium">Compte</span>
+        </a>
     </nav>
 
+    <!-- Script Firebase (Connexion à la base de données) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        const db = getFirestore(initializeApp({ apiKey: "AIzaSyDUSW3HT16j3ESHu3k4RQjR42sVRflv5g8", authDomain: "universmarket-5834b.firebaseapp.com", projectId: "universmarket-5834b", storageBucket: "universmarket-5834b.appspot.com", messagingSenderId: "921170766621", appId: "1:921170766621:web:a4fdd73b9492d47a748c96" }));
-        
-        onSnapshot(query(collection(db, 'annonces'), orderBy('createdAt', 'desc')), (snapshot) => {
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDUSW3HT16j3ESHu3k4RQjR42sVRflv5g8",
+            authDomain: "universmarket-5834b.firebaseapp.com",
+            projectId: "universmarket-5834b",
+            storageBucket: "universmarket-5834b.appspot.com",
+            messagingSenderId: "921170766621",
+            appId: "1:921170766621:web:a4fdd73b9492d47a748c96"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Récupération et affichage des annonces en temps réel
+        const q = query(collection(db, 'annonces'), orderBy('createdAt', 'desc'));
+        onSnapshot(q, (snapshot) => {
             const container = document.getElementById('adsContainer');
-            const empty = document.getElementById('emptyAdsMessage');
-            if (snapshot.empty) { empty.classList.remove('hidden'); container.innerHTML = ''; return; }
-            empty.classList.add('hidden');
+            const emptyMsg = document.getElementById('emptyAdsMessage');
+            
+            if (snapshot.empty) {
+                emptyMsg.classList.remove('hidden');
+                container.innerHTML = '';
+                return;
+            }
+
+            emptyMsg.classList.add('hidden');
             container.innerHTML = snapshot.docs.map(doc => {
-                const d = doc.data();
-                return `<div class="bg-white p-3 rounded-xl shadow border">
-                            <img src="${d.image}" class="w-full h-40 object-cover rounded">
-                            <h4 class="font-bold">${d.title}</h4>
-                            <p class="text-blue-600 font-bold">$${d.priceUSD}</p>
-                        </div>`;
+                const ad = doc.data();
+                return `
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <img src="${ad.image || 'https://via.placeholder.com/300'}" class="w-full h-40 object-cover">
+                        <div class="p-3">
+                            <h4 class="font-bold text-gray-800 text-sm">${ad.title || 'Sans titre'}</h4>
+                            <p class="text-blue-600 font-bold text-base mt-1">$${ad.priceUSD || 0}</p>
+                            ${ad.phone ? `<a href="https://wa.me/${ad.phone}?text=Bonjour, je suis intéressé par votre annonce ${encodeURIComponent(ad.title)}" target="_blank" class="mt-3 block text-center bg-green-500 text-white text-xs py-2 rounded-xl font-bold shadow-sm"><i class="fa-brands fa-whatsapp mr-1"></i> Contacter</a>` : ''}
+                        </div>
+                    </div>
+                `;
             }).join('');
         });
     </script>
