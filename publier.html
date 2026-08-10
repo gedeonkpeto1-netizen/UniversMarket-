@@ -20,14 +20,14 @@
         <form id="adForm" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
             <div>
                 <label class="block text-xs font-bold text-gray-600 mb-1">Titre de l'annonce</label>
-                <input type="text" id="title" placeholder="Ex: iPhone 13 Pro Max" class="w-full p-3 border rounded-xl text-sm focus:outline-none focus:border-blue-600" required>
+                <input type="text" id="title" placeholder="Ex: Spark 10" class="w-full p-3 border rounded-xl text-sm focus:outline-none focus:border-blue-600" required>
             </div>
             <div>
                 <label class="block text-xs font-bold text-gray-600 mb-1">Prix en USD ($)</label>
-                <input type="number" id="price" placeholder="Ex: 450" class="w-full p-3 border rounded-xl text-sm focus:outline-none focus:border-blue-600" required>
+                <input type="number" id="price" placeholder="Ex: 120" class="w-full p-3 border rounded-xl text-sm focus:outline-none focus:border-blue-600" required>
             </div>
             <div>
-                <label class="block text-xs font-bold text-gray-600 mb-1">Numéro WhatsApp (avec indicatif, ex: 243...)</label>
+                <label class="block text-xs font-bold text-gray-600 mb-1">Numéro WhatsApp (ex: 243...)</label>
                 <input type="text" id="phone" placeholder="Ex: 243820000000" class="w-full p-3 border rounded-xl text-sm focus:outline-none focus:border-blue-600" required>
             </div>
             <div>
@@ -38,7 +38,7 @@
         </form>
     </main>
 
-    <!-- Script d'envoi vers Firebase avec conversion d'image -->
+    <!-- Script de redimensionnement et d'envoi -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -55,12 +55,30 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Fonction pour transformer l'image du téléphone en texte (Base64)
-        const convertImageToBase64 = (file) => {
+        // Fonction pour compresser l'image et la convertir en format léger
+        const resizeImageAndConvertToBase64 = (file) => {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = error => reject(error);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 400; // Taille réduite pour que ça passe dans Firebase
+                        const scaleSize = MAX_WIDTH / img.width;
+                        canvas.width = MAX_WIDTH;
+                        canvas.height = img.height * scaleSize;
+
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                        // Compression en JPEG qualité 0.7
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                        resolve(dataUrl);
+                    };
+                    img.onerror = (err) => reject(err);
+                    img.src = event.target.result;
+                };
+                reader.onerror = (err) => reject(err);
                 reader.readAsDataURL(file);
             });
         };
@@ -70,17 +88,17 @@
             
             const submitBtn = e.target.querySelector('button');
             submitBtn.disabled = true;
-            submitBtn.innerText = "Traitement de l'image...";
+            submitBtn.innerText = "Compression de l'image...";
 
             try {
                 const fileInput = document.getElementById('imageFile');
                 let imageBase64 = '';
 
                 if (fileInput.files && fileInput.files[0]) {
-                    submitBtn.innerText = "Publication en cours...";
-                    imageBase64 = await convertImageToBase64(fileInput.files[0]);
+                    imageBase64 = await resizeImageAndConvertToBase64(fileInput.files[0]);
                 }
 
+                submitBtn.innerText = "Publication en cours...";
                 await addDoc(collection(db, 'annonces'), {
                     title: document.getElementById('title').value,
                     priceUSD: Number(document.getElementById('price').value),
@@ -92,8 +110,8 @@
                 alert('Annonce publiée avec succès !');
                 window.location.href = 'index.html';
             } catch (error) {
-                console.error("Erreur:", error);
-                alert("Erreur lors de la publication.");
+                console.error("Erreur détaillée:", error);
+                alert("Erreur: " + error.message);
                 submitBtn.disabled = false;
                 submitBtn.innerText = "Valider et Publier";
             }
