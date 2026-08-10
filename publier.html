@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Publier une annonce - UniversMarket</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 pb-20">
+
+    <!-- Header -->
+    <header class="bg-blue-600 p-4 text-white flex items-center shadow-lg">
+        <a href="index.html" class="mr-3 text-lg"><i class="fa-solid fa-arrow-left"></i></a>
+        <h1 class="font-bold text-lg">Publier une annonce</h1>
+    </header>
+
+    <!-- Formulaire -->
+    <main class="p-4 max-w-lg mx-auto">
+        <form id="adForm" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-gray-600 mb-1">Titre de l'annonce</label>
+                <input type="text" id="title" placeholder="Ex: iPhone 13 Pro Max" class="w-full p-3 border rounded-xl text-sm focus:outline-none focus:border-blue-600" required>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-600 mb-1">Prix en USD ($)</label>
+                <input type="number" id="price" placeholder="Ex: 450" class="w-full p-3 border rounded-xl text-sm focus:outline-none focus:border-blue-600" required>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-600 mb-1">Numéro WhatsApp (avec indicatif, ex: 243...)</label>
+                <input type="text" id="phone" placeholder="Ex: 243820000000" class="w-full p-3 border rounded-xl text-sm focus:outline-none focus:border-blue-600" required>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-600 mb-1">Lien de l'image (URL)</label>
+                <input type="url" id="image" placeholder="Colle le lien direct de l'image" class="w-full p-3 border rounded-xl text-sm focus:outline-none focus:border-blue-600" required>
+            </div>
+            <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-md hover:bg-blue-700 transition">Valider et Publier</button>
+        </form>
+    </main>
+
+    <!-- Script d'envoi vers Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDUSW3HT16j3ESHu3k4RQjR42sVRflv5g8",
+            authDomain: "universmarket-5834b.firebaseapp.com",
+            projectId: "universmarket-5834b",
+            storageBucket: "universmarket-5834b.appspot.com",
+            messagingSenderId: "921170766621",
+            appId: "1:921170766621:web:a4fdd73b9492d47a748c96"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        document.getElementById('adForm').onsubmit = async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = e.target.querySelector('button');
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Publication en cours...";
+
+            try {
+                await addDoc(collection(db, 'annonces'), {
+                    title: document.getElementById('title').value,
+                    priceUSD: Number(document.getElementById('price').value),
+                    phone: document.getElementById('phone').value,
+                    image: document.getElementById('image').value,
+                    createdAt: new Date()
+                });
+                alert('Annonce publiée avec succès !');
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error("Erreur:", error);
+                alert("Erreur lors de la publication.");
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Valider et Publier";
+            }
+        };
+    </script>
+</body>
+</html>
