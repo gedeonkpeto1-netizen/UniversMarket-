@@ -21,7 +21,13 @@
     </header>
 
     <main class="p-4 max-w-lg mx-auto">
-        <form id="postForm" class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 space-y-4 transition-colors duration-300">
+        <!-- Message de vérification de sécurité en attendant -->
+        <div id="securityLoading" class="text-center py-10 text-gray-400 text-xs">
+            Vérification de votre session...
+        </div>
+
+        <!-- Formulaire masqué tant que l'utilisateur n'est pas authentifié -->
+        <form id="postForm" class="hidden bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 space-y-4 transition-colors duration-300">
             
             <div>
                 <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Titre de l'annonce</label>
@@ -45,17 +51,17 @@
                 </div>
             </div>
 
-            <!-- Localisation RDC -->
+            <!-- Localisation RDC (26 Provinces) -->
             <div class="grid grid-cols-2 gap-3">
                 <div>
                     <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Province</label>
                     <select id="provinceSelect" class="w-full p-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-sm focus:outline-none focus:border-blue-600">
-                        <!-- Rempli par script -->
+                        <!-- Rempli dynamiquement par script -->
                     </select>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Ville / Commune</label>
-                    <input type="text" id="city" required placeholder="Ex: Kinshasa (Gombe)" class="w-full p-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-sm focus:outline-none focus:border-blue-600">
+                    <input type="text" id="city" required placeholder="Ex: Gombe, Lubumbashi..." class="w-full p-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-sm focus:outline-none focus:border-blue-600">
                 </div>
             </div>
 
@@ -100,6 +106,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -112,7 +119,27 @@
         };
 
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const db = getFirestore(app);
+
+        // 🛡️ SÉCURITÉ DE PUBLICATION
+        let connectedUserEmail = "";
+
+        onAuthStateChanged(auth, (user) => {
+            const loadingDiv = document.getElementById('securityLoading');
+            const formElement = document.getElementById('postForm');
+
+            if (!user) {
+                // Si l'utilisateur n'est pas connecté, alerte et redirection vers la page de connexion
+                alert("Accès refusé ! Vous devez être connecté pour publier une annonce.");
+                window.location.href = "compte.html";
+            } else {
+                // S'il est connecté, on mémorise son email et on affiche le formulaire de publication
+                connectedUserEmail = user.email;
+                loadingDiv.classList.add('hidden');
+                formElement.classList.remove('hidden');
+            }
+        });
 
         // Les 26 provinces de la RDC
         const provincesRDC = [
@@ -132,6 +159,7 @@
             provinceSelect.appendChild(opt);
         });
 
+        // Gestion de la soumission du formulaire
         const form = document.getElementById('postForm');
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -148,6 +176,7 @@
                     city: document.getElementById('city').value.trim(),
                     phone: document.getElementById('phone').value,
                     image: document.getElementById('image').value,
+                    userEmail: connectedUserEmail, // Enregistre l'email du propriétaire
                     createdAt: serverTimestamp()
                 });
 
