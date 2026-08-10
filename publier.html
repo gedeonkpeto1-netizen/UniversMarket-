@@ -31,14 +31,14 @@
                 <input type="text" id="phone" placeholder="Ex: 243820000000" class="w-full p-3 border rounded-xl text-sm focus:outline-none focus:border-blue-600" required>
             </div>
             <div>
-                <label class="block text-xs font-bold text-gray-600 mb-1">Lien de l'image (URL)</label>
-                <input type="url" id="image" placeholder="Colle le lien direct de l'image" class="w-full p-3 border rounded-xl text-sm focus:outline-none focus:border-blue-600" required>
+                <label class="block text-xs font-bold text-gray-600 mb-1">Photo du produit</label>
+                <input type="file" id="imageFile" accept="image/*" class="w-full p-2 border rounded-xl text-sm bg-gray-50 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
             </div>
             <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-md hover:bg-blue-700 transition">Valider et Publier</button>
         </form>
     </main>
 
-    <!-- Script d'envoi vers Firebase -->
+    <!-- Script d'envoi vers Firebase avec conversion d'image -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -55,21 +55,40 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // Fonction pour transformer l'image du téléphone en texte (Base64)
+        const convertImageToBase64 = (file) => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+                reader.readAsDataURL(file);
+            });
+        };
+
         document.getElementById('adForm').onsubmit = async (e) => {
             e.preventDefault();
             
             const submitBtn = e.target.querySelector('button');
             submitBtn.disabled = true;
-            submitBtn.innerText = "Publication en cours...";
+            submitBtn.innerText = "Traitement de l'image...";
 
             try {
+                const fileInput = document.getElementById('imageFile');
+                let imageBase64 = '';
+
+                if (fileInput.files && fileInput.files[0]) {
+                    submitBtn.innerText = "Publication en cours...";
+                    imageBase64 = await convertImageToBase64(fileInput.files[0]);
+                }
+
                 await addDoc(collection(db, 'annonces'), {
                     title: document.getElementById('title').value,
                     priceUSD: Number(document.getElementById('price').value),
                     phone: document.getElementById('phone').value,
-                    image: document.getElementById('image').value,
+                    image: imageBase64,
                     createdAt: new Date()
                 });
+
                 alert('Annonce publiée avec succès !');
                 window.location.href = 'index.html';
             } catch (error) {
