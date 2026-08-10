@@ -1,16 +1,22 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" id="htmlRoot">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UniversMarket - Accueil</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+        tailwind.config = { darkMode: 'class' }
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
 </head>
-<body class="bg-gray-100 pb-24">
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 pb-24 transition-colors duration-300">
 
     <!-- Header -->
-    <header class="bg-blue-600 p-4 text-white shadow-md">
+    <header class="bg-blue-600 dark:bg-blue-900 p-4 text-white shadow-md transition-colors duration-300">
         <div class="flex justify-between items-center mb-3">
             <h1 class="font-extrabold text-xl tracking-wide flex items-center">
                 UniversMarket <span class="ml-2 text-xs bg-white text-blue-600 px-2 py-0.5 rounded-full font-bold">RDC</span>
@@ -25,7 +31,7 @@
 
     <!-- Bannière WhatsApp Direct -->
     <main class="p-4">
-        <div class="bg-blue-600 text-white p-4 rounded-2xl shadow-md flex justify-between items-center mb-5">
+        <div class="bg-blue-600 dark:bg-blue-900 text-white p-4 rounded-2xl shadow-md flex justify-between items-center mb-5 transition-colors duration-300">
             <div>
                 <span class="text-[10px] bg-blue-500 px-2 py-0.5 rounded font-semibold uppercase tracking-wider">Achat & Vente RDC</span>
                 <h2 class="font-bold text-base mt-1">WhatsApp Direct</h2>
@@ -38,58 +44,58 @@
 
         <!-- Catégories cliquables -->
         <div class="flex justify-between items-center mb-3">
-            <h3 class="font-bold text-gray-800 text-sm">Catégories</h3>
+            <h3 class="font-bold text-gray-800 dark:text-gray-200 text-sm">Catégories</h3>
         </div>
         <div class="flex space-x-3 overflow-x-auto pb-2 scrollbar-none">
             <button onclick="filterCategory('All')" class="cat-btn flex flex-col items-center justify-center min-w-[75px] h-20 bg-blue-600 text-white rounded-2xl shadow-sm transition active" data-cat="All">
                 <i class="fa-solid fa-border-all text-lg mb-1"></i>
                 <span class="text-xs font-medium">Toutes</span>
             </button>
-            <button onclick="filterCategory('Telephones')" class="cat-btn flex flex-col items-center justify-center min-w-[75px] h-20 bg-white text-gray-700 rounded-2xl shadow-sm border border-gray-100 transition" data-cat="Telephones">
+            <button onclick="filterCategory('Telephones')" class="cat-btn flex flex-col items-center justify-center min-w-[75px] h-20 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 transition" data-cat="Telephones">
                 <i class="fa-solid fa-mobile-screen-button text-lg mb-1 text-blue-600"></i>
                 <span class="text-xs font-medium">Téléphones</span>
             </button>
-            <button onclick="filterCategory('Electro')" class="cat-btn flex flex-col items-center justify-center min-w-[75px] h-20 bg-white text-gray-700 rounded-2xl shadow-sm border border-gray-100 transition" data-cat="Electro">
+            <button onclick="filterCategory('Electro')" class="cat-btn flex flex-col items-center justify-center min-w-[75px] h-20 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 transition" data-cat="Electro">
                 <i class="fa-solid fa-tv text-lg mb-1 text-blue-600"></i>
                 <span class="text-xs font-medium">Électro</span>
             </button>
-            <button onclick="filterCategory('Meubles')" class="cat-btn flex flex-col items-center justify-center min-w-[75px] h-20 bg-white text-gray-700 rounded-2xl shadow-sm border border-gray-100 transition" data-cat="Meubles">
+            <button onclick="filterCategory('Meubles')" class="cat-btn flex flex-col items-center justify-center min-w-[75px] h-20 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 transition" data-cat="Meubles">
                 <i class="fa-solid fa-couch text-lg mb-1 text-blue-600"></i>
                 <span class="text-xs font-medium">Meubles</span>
             </button>
         </div>
 
         <!-- Liste des annonces -->
-        <h3 class="font-bold text-gray-800 text-sm mt-5 mb-3">Annonces récentes</h3>
+        <h3 class="font-bold text-gray-800 dark:text-gray-200 text-sm mt-5 mb-3">Annonces récentes</h3>
         <div id="adsList" class="space-y-4">
             <p class="text-center text-gray-400 text-xs py-10">Chargement des annonces...</p>
         </div>
     </main>
 
     <!-- Barre de navigation du bas -->
-    <nav class="fixed bottom-0 w-full bg-white border-t border-gray-200 flex justify-around items-center py-2 text-gray-400 z-50 shadow-lg">
-        <a href="index.html" class="flex flex-col items-center text-blue-600">
+    <nav class="fixed bottom-0 w-full bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex justify-around items-center py-2 text-gray-400 z-50 shadow-lg transition-colors duration-300">
+        <a href="index.html" class="flex flex-col items-center text-blue-600 dark:text-blue-400">
             <i class="fa-solid fa-house text-lg"></i>
             <span class="text-[10px] mt-1 font-medium">Accueil</span>
         </a>
-        <a href="rechercher.html" class="flex flex-col items-center hover:text-gray-600">
+        <a href="rechercher.html" class="flex flex-col items-center hover:text-gray-600 dark:hover:text-gray-200">
             <i class="fa-solid fa-magnifying-glass text-lg"></i>
             <span class="text-[10px] mt-1 font-medium">Rechercher</span>
         </a>
         <a href="publier.html" class="bg-blue-600 text-white rounded-full w-12 h-12 flex items-center justify-center -mt-5 shadow-lg">
             <i class="fa-solid fa-plus text-xl"></i>
         </a>
-        <a href="favoris.html" class="flex flex-col items-center hover:text-gray-600">
+        <a href="favoris.html" class="flex flex-col items-center hover:text-gray-600 dark:hover:text-gray-200">
             <i class="fa-solid fa-heart text-lg"></i>
             <span class="text-[10px] mt-1 font-medium">Favoris</span>
         </a>
-        <a href="compte.html" class="flex flex-col items-center hover:text-gray-600">
+        <a href="compte.html" class="flex flex-col items-center hover:text-gray-600 dark:hover:text-gray-200">
             <i class="fa-solid fa-user text-lg"></i>
             <span class="text-[10px] mt-1 font-medium">Compte</span>
         </a>
     </nav>
 
-    <!-- Script de chargement et filtrage depuis Firebase -->
+    <!-- Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -129,7 +135,7 @@
         window.displayAds = function(ads) {
             const adsList = document.getElementById('adsList');
             if (ads.length === 0) {
-                adsList.innerHTML = `<div class="bg-white p-6 rounded-2xl text-center text-gray-400 text-xs shadow-sm">Aucune annonce trouvée.</div>`;
+                adsList.innerHTML = `<div class="bg-white dark:bg-gray-800 p-6 rounded-2xl text-center text-gray-400 text-xs shadow-sm">Aucune annonce trouvée.</div>`;
                 return;
             }
 
@@ -139,11 +145,17 @@
                 const whatsappUrl = `https://wa.me/${phoneClean}?text=Bonjour,%20je%20suis%20intéressé%20par%20votre%20annonce%20${encodeURIComponent(ad.title)}`;
 
                 const card = `
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                        <img src="${ad.image || 'https://via.placeholder.com/400x300'}" alt="${ad.title}" class="w-full h-48 object-cover">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors duration-300">
+                        <div class="relative">
+                            <img src="${ad.image || 'https://via.placeholder.com/400x300'}" alt="${ad.title}" class="w-full h-48 object-cover">
+                            <button onclick="shareAd('${ad.title}', '${ad.priceUSD}')" class="absolute top-3 right-3 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md text-gray-800 dark:text-white w-9 h-9 rounded-full flex items-center justify-center shadow hover:bg-white transition" title="Partager">
+                                <i class="fa-solid fa-share-nodes text-xs"></i>
+                            </button>
+                        </div>
                         <div class="p-4">
-                            <h3 class="font-bold text-gray-800 text-sm mb-1">${ad.title}</h3>
-                            <p class="text-blue-600 font-extrabold text-base mb-3">$${ad.priceUSD}</p>
+                            <span class="text-[10px] bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded-full font-bold uppercase">${ad.category || 'Général'}</span>
+                            <h3 class="font-bold text-gray-800 dark:text-white text-sm mt-1 mb-1">${ad.title}</h3>
+                            <p class="text-blue-600 dark:text-blue-400 font-extrabold text-base mb-3">$${ad.priceUSD}</p>
                             <a href="${whatsappUrl}" target="_blank" class="w-full bg-emerald-500 text-white py-2.5 rounded-xl font-bold text-xs flex items-center justify-center space-x-2 shadow hover:bg-emerald-600 transition">
                                 <i class="fa-brands fa-whatsapp text-sm"></i>
                                 <span>Contacter</span>
@@ -155,26 +167,37 @@
             });
         }
 
-        // Fonction de filtrage par catégorie
+        // Fonction de partage natif
+        window.shareAd = function(title, price) {
+            const shareData = {
+                title: title,
+                text: `🔥 Regarde cette super annonce sur UniversMarket : ${title} à seulement $${price} !`,
+                url: window.location.href
+            };
+
+            if (navigator.share) {
+                navigator.share(shareData).catch(() => {});
+            } else {
+                navigator.clipboard.writeText(`${shareData.text} - ${shareData.url}`);
+                alert("Lien de l'annonce copié dans le presse-papier ! Vous pouvez le coller sur WhatsApp ou Facebook.");
+            }
+        }
+
         window.filterCategory = function(category) {
-            // Mettre à jour le design des boutons de catégorie
             document.querySelectorAll('.cat-btn').forEach(btn => {
                 if(btn.getAttribute('data-cat') === category) {
-                    btn.classList.remove('bg-white', 'text-gray-700', 'border', 'border-gray-100');
+                    btn.classList.remove('bg-white', 'dark:bg-gray-800', 'text-gray-700', 'dark:text-gray-300', 'border', 'border-gray-100', 'dark:border-gray-700');
                     btn.classList.add('bg-blue-600', 'text-white');
                     const icon = btn.querySelector('i');
-                    if(icon) icon.classList.remove('text-blue-600');
-                    if(icon) icon.classList.add('text-white');
+                    if(icon) { icon.classList.remove('text-blue-600'); icon.classList.add('text-white'); }
                 } else {
                     btn.classList.remove('bg-blue-600', 'text-white');
-                    btn.classList.add('bg-white', 'text-gray-700', 'border', 'border-gray-100');
+                    btn.classList.add('bg-white', 'dark:bg-gray-800', 'text-gray-700', 'dark:text-gray-300', 'border', 'border-gray-100', 'dark:border-gray-700');
                     const icon = btn.querySelector('i');
-                    if(icon) icon.classList.remove('text-white');
-                    if(icon) icon.classList.add('text-blue-600');
+                    if(icon) { icon.classList.remove('text-white'); icon.classList.add('text-blue-600'); }
                 }
             });
 
-            // Filtrer les annonces
             if (category === 'All') {
                 displayAds(allAds);
             } else {
@@ -183,7 +206,6 @@
             }
         }
 
-        // Recherche par mot-clé
         document.getElementById('searchInput').addEventListener('input', (e) => {
             const searchVal = e.target.value.toLowerCase();
             const filtered = allAds.filter(ad => ad.title.toLowerCase().includes(searchVal));
