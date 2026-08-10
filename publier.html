@@ -1,56 +1,106 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" id="htmlRoot">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Publier une annonce - UniversMarket</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+        tailwind.config = { darkMode: 'class' }
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
 </head>
-<body class="bg-gray-100 pb-20">
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 pb-24 transition-colors duration-300">
 
-    <!-- Header -->
-    <header class="bg-blue-600 p-4 text-white flex items-center shadow-lg">
+    <header class="bg-blue-600 dark:bg-blue-900 p-4 text-white shadow-md flex items-center transition-colors duration-300">
         <a href="index.html" class="mr-3 text-lg"><i class="fa-solid fa-arrow-left"></i></a>
         <h1 class="font-bold text-lg">Publier une annonce</h1>
     </header>
 
-    <!-- Formulaire -->
     <main class="p-4 max-w-lg mx-auto">
-        <form id="adForm" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+        <form id="postForm" class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 space-y-4 transition-colors duration-300">
+            
             <div>
-                <label class="block text-xs font-bold text-gray-600 mb-1">Titre de l'annonce</label>
-                <input type="text" id="title" placeholder="Ex: Spark 10" class="w-full p-3 border rounded-xl text-sm focus:outline-none focus:border-blue-600" required>
+                <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Titre de l'annonce</label>
+                <input type="text" id="title" required placeholder="Ex: iPhone 13 Pro Max 256Go" class="w-full p-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-sm focus:outline-none focus:border-blue-600">
             </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Prix ($ USD)</label>
+                    <input type="number" id="priceUSD" required placeholder="Ex: 450" class="w-full p-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-sm focus:outline-none focus:border-blue-600">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Catégorie</label>
+                    <select id="category" class="w-full p-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-sm focus:outline-none focus:border-blue-600">
+                        <option value="Telephones">Téléphones</option>
+                        <option value="Electro">Électronique</option>
+                        <option value="Meubles">Meubles</option>
+                        <option value="Vehicules">Véhicules</option>
+                        <option value="Mode">Mode & Vêtements</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Localisation RDC -->
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Province</label>
+                    <select id="provinceSelect" class="w-full p-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-sm focus:outline-none focus:border-blue-600">
+                        <!-- Rempli par script -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Ville / Commune</label>
+                    <input type="text" id="city" required placeholder="Ex: Kinshasa (Gombe)" class="w-full p-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-sm focus:outline-none focus:border-blue-600">
+                </div>
+            </div>
+
             <div>
-                <label class="block text-xs font-bold text-gray-600 mb-1">Catégorie</label>
-                <select id="category" class="w-full p-3 border rounded-xl text-sm bg-white focus:outline-none focus:border-blue-600" required>
-                    <option value="" disabled selected>Choisissez une catégorie</option>
-                    <option value="Telephones">Téléphones</option>
-                    <option value="Electro">Électro</option>
-                    <option value="Meubles">Meubles</option>
-                </select>
+                <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Numéro WhatsApp</label>
+                <input type="tel" id="phone" required placeholder="Ex: +243820000000" class="w-full p-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-sm focus:outline-none focus:border-blue-600">
             </div>
+
             <div>
-                <label class="block text-xs font-bold text-gray-600 mb-1">Prix en USD ($)</label>
-                <input type="number" id="price" placeholder="Ex: 120" class="w-full p-3 border rounded-xl text-sm focus:outline-none focus:border-blue-600" required>
+                <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Lien de l'image (URL)</label>
+                <input type="url" id="image" required placeholder="https://exemple.com/image.jpg" class="w-full p-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-sm focus:outline-none focus:border-blue-600">
             </div>
-            <div>
-                <label class="block text-xs font-bold text-gray-600 mb-1">Numéro WhatsApp (ex: 243...)</label>
-                <input type="text" id="phone" placeholder="Ex: 243820000000" class="w-full p-3 border rounded-xl text-sm focus:outline-none focus:border-blue-600" required>
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-gray-600 mb-1">Photo du produit</label>
-                <input type="file" id="imageFile" accept="image/*" class="w-full p-2 border rounded-xl text-sm bg-gray-50 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
-            </div>
-            <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-md hover:bg-blue-700 transition">Valider et Publier</button>
+
+            <button type="submit" id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-3.5 rounded-xl text-sm shadow-lg transition">
+                Publier l'annonce
+            </button>
         </form>
     </main>
 
-    <!-- Script d'envoi vers Firebase -->
+    <!-- Navigation -->
+    <nav class="fixed bottom-0 w-full bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex justify-around items-center py-2 text-gray-400 z-50 shadow-lg transition-colors duration-300">
+        <a href="index.html" class="flex flex-col items-center hover:text-gray-600 dark:hover:text-gray-200">
+            <i class="fa-solid fa-house text-lg"></i>
+            <span class="text-[10px] mt-1 font-medium">Accueil</span>
+        </a>
+        <a href="rechercher.html" class="flex flex-col items-center hover:text-gray-600 dark:hover:text-gray-200">
+            <i class="fa-solid fa-magnifying-glass text-lg"></i>
+            <span class="text-[10px] mt-1 font-medium">Rechercher</span>
+        </a>
+        <a href="publier.html" class="bg-blue-600 text-white rounded-full w-12 h-12 flex items-center justify-center -mt-5 shadow-lg">
+            <i class="fa-solid fa-plus text-xl"></i>
+        </a>
+        <a href="favoris.html" class="flex flex-col items-center hover:text-gray-600 dark:hover:text-gray-200">
+            <i class="fa-solid fa-heart text-lg"></i>
+            <span class="text-[10px] mt-1 font-medium">Favoris</span>
+        </a>
+        <a href="compte.html" class="flex flex-col items-center hover:text-gray-600 dark:hover:text-gray-200">
+            <i class="fa-solid fa-user text-lg"></i>
+            <span class="text-[10px] mt-1 font-medium">Compte</span>
+        </a>
+    </nav>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDUSW3HT16j3ESHu3k4RQjR42sVRflv5g8",
@@ -64,66 +114,52 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        const resizeImageAndConvertToBase64 = (file) => {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        const MAX_WIDTH = 400;
-                        const scaleSize = MAX_WIDTH / img.width;
-                        canvas.width = MAX_WIDTH;
-                        canvas.height = img.height * scaleSize;
+        // Les 26 provinces de la RDC
+        const provincesRDC = [
+            "Kinshasa", "Haut-Katanga", "Lualaba", "Nord-Kivu", "Sud-Kivu", 
+            "Kongo-Central", "Kasai", "Kasai-Central", "Kasai-Oriental", "Lomami", 
+            "Sankuru", "Tanganyika", "Haut-Lomami", "Maniema", "Bas-Uele", 
+            "Haut-Uele", "Ituri", "Tshopo", "Equateur", "Nord-Ubangi", 
+            "Sud-Ubangi", "Mongala", "Tshuapa", "Kwango", "Kwilu", "Mai-Ndombe"
+        ];
 
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const provinceSelect = document.getElementById('provinceSelect');
+        provincesRDC.sort().forEach(prov => {
+            const opt = document.createElement('option');
+            opt.value = prov;
+            opt.textContent = prov;
+            if(prov === "Kinshasa") opt.selected = true;
+            provinceSelect.appendChild(opt);
+        });
 
-                        const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-                        resolve(dataUrl);
-                    };
-                    img.onerror = (err) => reject(err);
-                    img.src = event.target.result;
-                };
-                reader.onerror = (err) => reject(err);
-                reader.readAsDataURL(file);
-            });
-        };
-
-        document.getElementById('adForm').onsubmit = async (e) => {
+        const form = document.getElementById('postForm');
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            const submitBtn = e.target.querySelector('button');
+            const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = true;
-            submitBtn.innerText = "Compression de l'image...";
+            submitBtn.textContent = "Publication en cours...";
 
             try {
-                const fileInput = document.getElementById('imageFile');
-                let imageBase64 = '';
-
-                if (fileInput.files && fileInput.files[0]) {
-                    imageBase64 = await resizeImageAndConvertToBase64(fileInput.files[0]);
-                }
-
-                submitBtn.innerText = "Publication en cours...";
                 await addDoc(collection(db, 'annonces'), {
                     title: document.getElementById('title').value,
+                    priceUSD: parseFloat(document.getElementById('priceUSD').value),
                     category: document.getElementById('category').value,
-                    priceUSD: Number(document.getElementById('price').value),
+                    province: document.getElementById('provinceSelect').value,
+                    city: document.getElementById('city').value.trim(),
                     phone: document.getElementById('phone').value,
-                    image: imageBase64,
-                    createdAt: new Date()
+                    image: document.getElementById('image').value,
+                    createdAt: serverTimestamp()
                 });
 
-                alert('Annonce publiée avec succès !');
-                window.location.href = 'index.html';
+                alert("Annonce publiée avec succès !");
+                window.location.href = "index.html";
             } catch (error) {
-                console.error("Erreur détaillée:", error);
-                alert("Erreur: " + error.message);
+                console.error("Erreur:", error);
+                alert("Erreur lors de la publication.");
                 submitBtn.disabled = false;
-                submitBtn.innerText = "Valider et Publier";
+                submitBtn.textContent = "Publier l'annonce";
             }
-        };
+        });
     </script>
 </body>
 </html>
