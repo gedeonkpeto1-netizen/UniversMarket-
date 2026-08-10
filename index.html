@@ -19,8 +19,15 @@
     <header class="bg-blue-600 dark:bg-blue-900 p-4 text-white shadow-md transition-colors duration-300">
         <div class="flex justify-between items-center mb-3">
             <h1 class="font-extrabold text-xl tracking-wide flex items-center">
-                UniversMarket <span class="ml-2 text-xs bg-white text-blue-600 px-2 py-0.5 rounded-full font-bold">RDC</span>
+                UniversMarket <span class="ml-2 text-xs bg-white text-blue-600 px-2 py-0.5 rounded-full font-bold">RDC 🇨🇩</span>
             </h1>
+            <!-- Sélecteur de Province -->
+            <div class="flex items-center space-x-1 bg-blue-700 dark:bg-blue-950 px-3 py-1.5 rounded-xl text-xs font-semibold">
+                <i class="fa-solid fa-location-dot text-emerald-400"></i>
+                <select id="filterProvince" class="bg-transparent text-white focus:outline-none cursor-pointer">
+                    <option value="Toutes" class="text-gray-800">Toutes les provinces</option>
+                </select>
+            </div>
         </div>
         <!-- Barre de recherche -->
         <div class="relative">
@@ -29,20 +36,20 @@
         </div>
     </header>
 
-    <!-- Bannière WhatsApp Direct -->
     <main class="p-4">
+        <!-- Bannière WhatsApp Direct -->
         <div class="bg-blue-600 dark:bg-blue-900 text-white p-4 rounded-2xl shadow-md flex justify-between items-center mb-5 transition-colors duration-300">
             <div>
-                <span class="text-[10px] bg-blue-500 px-2 py-0.5 rounded font-semibold uppercase tracking-wider">Achat & Vente RDC</span>
-                <h2 class="font-bold text-base mt-1">WhatsApp Direct</h2>
-                <p class="text-xs text-blue-100">Contactez directement les vendeurs</p>
+                <span class="text-[10px] bg-blue-500 px-2 py-0.5 rounded font-semibold uppercase tracking-wider">Marketplace RDC</span>
+                <h2 class="font-bold text-base mt-1">Achetez & Vendez localement</h2>
+                <p class="text-xs text-blue-100">Contact direct via WhatsApp</p>
             </div>
             <a href="publier.html" class="bg-white text-blue-600 px-4 py-2.5 rounded-xl font-bold text-xs shadow hover:bg-blue-50 transition">
                 + Publier
             </a>
         </div>
 
-        <!-- Catégories cliquables -->
+        <!-- Catégories -->
         <div class="flex justify-between items-center mb-3">
             <h3 class="font-bold text-gray-800 dark:text-gray-200 text-sm">Catégories</h3>
         </div>
@@ -72,7 +79,7 @@
         </div>
     </main>
 
-    <!-- Barre de navigation du bas -->
+    <!-- Navigation -->
     <nav class="fixed bottom-0 w-full bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex justify-around items-center py-2 text-gray-400 z-50 shadow-lg transition-colors duration-300">
         <a href="index.html" class="flex flex-col items-center text-blue-600 dark:text-blue-400">
             <i class="fa-solid fa-house text-lg"></i>
@@ -95,7 +102,6 @@
         </a>
     </nav>
 
-    <!-- Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -112,7 +118,25 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        const provincesRDC = [
+            "Kinshasa", "Haut-Katanga", "Lualaba", "Nord-Kivu", "Sud-Kivu", 
+            "Kongo-Central", "Kasai", "Kasai-Central", "Kasai-Oriental", "Lomami", 
+            "Sankuru", "Tanganyika", "Haut-Lomami", "Maniema", "Bas-Uele", 
+            "Haut-Uele", "Ituri", "Tshopo", "Equateur", "Nord-Ubangi", 
+            "Sud-Ubangi", "Mongala", "Tshuapa", "Kwango", "Kwilu", "Mai-Ndombe"
+        ];
+
+        const filterProvince = document.getElementById('filterProvince');
+        provincesRDC.sort().forEach(prov => {
+            const opt = document.createElement('option');
+            opt.value = prov;
+            opt.textContent = prov;
+            opt.className = "text-gray-800";
+            filterProvince.appendChild(opt);
+        });
+
         let allAds = [];
+        let currentCategory = 'All';
 
         async function loadAds() {
             const adsList = document.getElementById('adsList');
@@ -125,15 +149,34 @@
                     allAds.push({ id: doc.id, ...doc.data() });
                 });
 
-                displayAds(allAds);
+                applyFilters();
             } catch (error) {
-                console.error("Erreur de chargement:", error);
-                adsList.innerHTML = `<p class="text-center text-red-500 text-xs py-10">Erreur de chargement des annonces.</p>`;
+                console.error("Erreur:", error);
+                adsList.innerHTML = `<p class="text-center text-red-500 text-xs py-10">Erreur de chargement.</p>`;
             }
+        }
+
+        // Gestion des favoris en LocalStorage
+        window.getFavorites = function() {
+            return JSON.parse(localStorage.getItem('universmarket_favorites')) || [];
+        }
+
+        window.toggleFavorite = function(id) {
+            let favs = getFavorites();
+            const index = favs.indexOf(id);
+            if (index > -1) {
+                favs.splice(index, 1);
+            } else {
+                favs.push(id);
+            }
+            localStorage.setItem('universmarket_favorites', JSON.stringify(favs));
+            applyFilters();
         }
 
         window.displayAds = function(ads) {
             const adsList = document.getElementById('adsList');
+            const favs = getFavorites();
+
             if (ads.length === 0) {
                 adsList.innerHTML = `<div class="bg-white dark:bg-gray-800 p-6 rounded-2xl text-center text-gray-400 text-xs shadow-sm">Aucune annonce trouvée.</div>`;
                 return;
@@ -141,6 +184,7 @@
 
             adsList.innerHTML = '';
             ads.forEach(ad => {
+                const isFav = favs.includes(ad.id);
                 const phoneClean = ad.phone ? ad.phone.replace(/[^0-9]/g, '') : '';
                 const whatsappUrl = `https://wa.me/${phoneClean}?text=Bonjour,%20je%20suis%20intéressé%20par%20votre%20annonce%20${encodeURIComponent(ad.title)}`;
 
@@ -148,9 +192,17 @@
                     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors duration-300">
                         <div class="relative">
                             <img src="${ad.image || 'https://via.placeholder.com/400x300'}" alt="${ad.title}" class="w-full h-48 object-cover">
+                            <!-- Bouton Favori (Cœur) -->
+                            <button onclick="toggleFavorite('${ad.id}')" class="absolute top-3 left-3 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md text-${isFav ? 'red-500' : 'gray-400'} w-9 h-9 rounded-full flex items-center justify-center shadow hover:scale-110 transition" title="Favori">
+                                <i class="${isFav ? 'fa-solid' : 'fa-regular'} fa-heart text-sm"></i>
+                            </button>
+                            <!-- Bouton Partager -->
                             <button onclick="shareAd('${ad.title}', '${ad.priceUSD}')" class="absolute top-3 right-3 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md text-gray-800 dark:text-white w-9 h-9 rounded-full flex items-center justify-center shadow hover:bg-white transition" title="Partager">
                                 <i class="fa-solid fa-share-nodes text-xs"></i>
                             </button>
+                            <span class="absolute bottom-3 left-3 bg-black/60 backdrop-blur-md text-white text-[10px] px-2.5 py-1 rounded-full font-semibold">
+                                <i class="fa-solid fa-location-dot text-emerald-400 mr-1"></i> ${ad.city || 'Ville'}, ${ad.province || 'RDC'}
+                            </span>
                         </div>
                         <div class="p-4">
                             <span class="text-[10px] bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded-full font-bold uppercase">${ad.category || 'Général'}</span>
@@ -167,50 +219,56 @@
             });
         }
 
-        // Fonction de partage natif
+        function applyFilters() {
+            let filtered = allAds;
+            const provVal = filterProvince.value;
+            const searchVal = document.getElementById('searchInput').value.toLowerCase();
+
+            if (provVal !== 'Toutes') {
+                filtered = filtered.filter(ad => ad.province === provVal);
+            }
+
+            if (currentCategory !== 'All') {
+                filtered = filtered.filter(ad => ad.category === currentCategory);
+            }
+
+            if (searchVal.trim() !== '') {
+                filtered = filtered.filter(ad => ad.title.toLowerCase().includes(searchVal));
+            }
+
+            displayAds(filtered);
+        }
+
+        filterProvince.addEventListener('change', applyFilters);
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
+
+        window.filterCategory = function(cat) {
+            currentCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                if(btn.getAttribute('data-cat') === cat) {
+                    btn.classList.remove('bg-white', 'dark:bg-gray-800', 'text-gray-700', 'dark:text-gray-300', 'border', 'border-gray-100', 'dark:border-gray-700');
+                    btn.classList.add('bg-blue-600', 'text-white');
+                } else {
+                    btn.classList.remove('bg-blue-600', 'text-white');
+                    btn.classList.add('bg-white', 'dark:bg-gray-800', 'text-gray-700', 'dark:text-gray-300', 'border', 'border-gray-100', 'dark:border-gray-700');
+                }
+            });
+            applyFilters();
+        }
+
         window.shareAd = function(title, price) {
             const shareData = {
                 title: title,
-                text: `🔥 Regarde cette super annonce sur UniversMarket : ${title} à seulement $${price} !`,
+                text: `🔥 Regarde cette annonce sur UniversMarket : ${title} à $${price} !`,
                 url: window.location.href
             };
-
             if (navigator.share) {
                 navigator.share(shareData).catch(() => {});
             } else {
                 navigator.clipboard.writeText(`${shareData.text} - ${shareData.url}`);
-                alert("Lien de l'annonce copié dans le presse-papier ! Vous pouvez le coller sur WhatsApp ou Facebook.");
+                alert("Lien copié !");
             }
         }
-
-        window.filterCategory = function(category) {
-            document.querySelectorAll('.cat-btn').forEach(btn => {
-                if(btn.getAttribute('data-cat') === category) {
-                    btn.classList.remove('bg-white', 'dark:bg-gray-800', 'text-gray-700', 'dark:text-gray-300', 'border', 'border-gray-100', 'dark:border-gray-700');
-                    btn.classList.add('bg-blue-600', 'text-white');
-                    const icon = btn.querySelector('i');
-                    if(icon) { icon.classList.remove('text-blue-600'); icon.classList.add('text-white'); }
-                } else {
-                    btn.classList.remove('bg-blue-600', 'text-white');
-                    btn.classList.add('bg-white', 'dark:bg-gray-800', 'text-gray-700', 'dark:text-gray-300', 'border', 'border-gray-100', 'dark:border-gray-700');
-                    const icon = btn.querySelector('i');
-                    if(icon) { icon.classList.remove('text-white'); icon.classList.add('text-blue-600'); }
-                }
-            });
-
-            if (category === 'All') {
-                displayAds(allAds);
-            } else {
-                const filtered = allAds.filter(ad => ad.category === category);
-                displayAds(filtered);
-            }
-        }
-
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            const searchVal = e.target.value.toLowerCase();
-            const filtered = allAds.filter(ad => ad.title.toLowerCase().includes(searchVal));
-            displayAds(filtered);
-        });
 
         loadAds();
     </script>
